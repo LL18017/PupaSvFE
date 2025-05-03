@@ -1,7 +1,8 @@
 class dataAccess {
-    
-    constructor(path_Url) {
-        this.URL = `http://localhost:9080/PupaSv-1.0-SNAPSHOT/v1/${path_Url}/`;
+    PATH_URL="tipoProducto";
+    constructor(path) {
+        this.PATH_URL = path; // Definir PATH_URL con un valor por defecto
+        this.URL = `http://localhost:9080/PupaSv-1.0-SNAPSHOT/v1/${this.PATH_URL}`;
     }
 
     /**
