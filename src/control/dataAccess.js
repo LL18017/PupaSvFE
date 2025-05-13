@@ -16,7 +16,7 @@ class dataAccess {
         let request = "";
 
         if (id !== undefined) {
-            request += `${id}`;
+            request += `/${id}`;
         }
 
         const queryParams = new URLSearchParams();
@@ -40,6 +40,7 @@ class dataAccess {
 
 
     createData(registro){
+        
         return fetch(this.URL,{
            method: "POST",
             headers: {
@@ -48,8 +49,14 @@ class dataAccess {
            body:JSON.stringify(registro)
         })
     }
-    UpdateData(registro){
-        return fetch(this.URL,{
+    updateData(registro,id){
+
+        let request = "";
+        if (id !== undefined) {
+            request += `/${id}`;
+        }
+        request=this.URL+request;
+        return fetch(request,{
            method: "PUT",
            headers: {
            "Content-Type": "application/json"
@@ -61,9 +68,8 @@ class dataAccess {
         let request = this.URL;
 
         if (id !== undefined && id!=="") {
-            request += `${id}`;
+            request += `/${id}`;
         }
-
         return fetch(request,{
             method: "DELETE",
             headers: {

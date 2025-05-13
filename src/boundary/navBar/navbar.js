@@ -14,7 +14,7 @@ class NavBar extends HTMLElement {
 
   render() {
     const link = html`
-      <link rel="stylesheet" href="./src/boundary/navBar/navBar.css" />
+      <link rel="stylesheet" href="./boundary/navBar/navBar.css" />
     `;
 
     const plantilla = html`
@@ -30,7 +30,7 @@ class NavBar extends HTMLElement {
           style=${this.menuAbierto ? "display: block" : "display: none"}
           @click=${() => this.buttonCerrar()}
         >
-          <img src="./src/css/assets/cerrar-blanco.png" />
+          <img src="./css/assets/cerrar-blanco.png" />
         </button>
 
         <button
@@ -38,7 +38,7 @@ class NavBar extends HTMLElement {
           style=${this.menuAbierto ? "display: none" : "display: block"}
           @click=${() => this.buttonAbrir()}
         >
-          <img src="./src/css/assets/menu-blanco.png" />
+          <img src="./css/assets/menu-blanco.png" />
         </button>
 
         <ul id="menu-lista" class=${this.menuAbierto ? "mostrar" : "ocultar"}>
@@ -52,7 +52,7 @@ class NavBar extends HTMLElement {
               style=${this.menuAbierto ? "display: none" : "display: block"}
               @click=${() => this.cartClick()}
             >
-              <img src="./src/css/assets/carrito-blanco.png" />
+              <img src="./css/assets/carrito-blanco.png" />
               <carrito-compras id="cartCard"></carrito-compras>
             </button>
           </li>

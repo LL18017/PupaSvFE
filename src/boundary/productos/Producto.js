@@ -19,7 +19,7 @@ class Producto extends HTMLElement {
   connectedCallback() {
     const link = document.createElement("link");
     link.setAttribute("rel", "stylesheet");
-    link.setAttribute("href", "./src/boundary/productos/producto.css");
+    link.setAttribute("href", "./boundary/productos/producto.css");
 
     this._root.appendChild(link);
 

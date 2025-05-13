@@ -1,0 +1,43 @@
+# Node.js
+node_modules/
+.env
+dist/
+build/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# Editor/IDE
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Tests
+coverage/
+.nyc_output/
+*.lcov
+
+# Logs
+logs/
+*.log
+
+# Navegador Sync (si usas browser-sync)
+.bs-config.js
+.browser-sync*
+
+# Mocha
+mochawesome-report/
+
+# Otros temporales
+*.tmp
+*.swp
+
+# Archivos que se generan pero no son fuentes
+*.tgz
+*.zip

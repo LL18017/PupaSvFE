@@ -5,10 +5,17 @@
       {
         "label":"lanzar-browser",
         "type": "shell",
-        "isBackground": false,
-        "command":"browser-sync start --server src -f \"**/*\" ./src --no-open"
+        "isBackground": true,
+        "command":"browser-sync start --server ./src -f \"**/*\" ./src --no-open"
   
-        }, 
+        },
+        {
+          "label":"lanzar-mocha",
+          "type": "shell",
+          "isBackground": true,
+          "command":"browser-sync start --server ./ -f \"**/*\" ./ --no-open"
+    
+          }, 
         {
           "label":"detener-browser",
           "type": "shell",

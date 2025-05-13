@@ -17,7 +17,7 @@ class CarriroCompras extends HTMLElement {
   }
   render() {
     const link = html`
-      <link rel="stylesheet" href="./src/boundary/cart/carritoCompras.css" />
+      <link rel="stylesheet" href="./boundary/cart/carritoCompras.css" />
     `;
 
     const plantilla = html`
