@@ -6,7 +6,9 @@ const navBar = document.getElementById("nav-bar");
 const productosContainer = document.getElementById("productos-container");
 const info = document.getElementById("info");
 const footer = document.getElementById("footer");
-const botonParaProbarCard = document.getElementById("botonParaProbarCard");
+const botonProbarproducto1 = document.getElementById("botonProbarproducto1");
+const botonProbarproducto2 = document.getElementById("botonProbarproducto2");
+const botonProbarcombo = document.getElementById("botonProbarcombo");
 const cartCard = document.getElementById("cartCard");
 
 navBar.addEventListener("inicioClick", (e) => {
@@ -37,6 +39,19 @@ navBar.addEventListener("cartClick", (e) =>
     nombre: ${e.detail.body.nombre}`
   )
 );
+navBar.addEventListener("eliminarItemCart", (e) =>{
+
+  navBar.itemEliminado()
+}
+
+);
+navBar.addEventListener("agregarItemCart", (e) =>{
+  
+  console.log("se esta egpu")
+  navBar.itemAgregado()
+}
+);
+
 productosContainer.addEventListener("productoSeleccionado", (e) =>
   console.log(`el producto ${e.detail.nombre} dice ' ${e.detail.precio}' `)
 );
@@ -44,11 +59,27 @@ productosContainer.addEventListener("comboSeleccionado", (e) =>
   console.log(`el combo ${e.detail.nombre}`)
 );
 
-botonParaProbarCard.addEventListener("click", () => {
+botonProbarproducto1.addEventListener("click", () => {
   navBar.productoAgregado({
-    nombre: "coca",
+    nombre: 'coca',
+    idProducto:1,
     url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNKD4uQkcygT38Vm8luf2QrP84OpENDHcXOg&s",
     precio:12.50,
-    cantidad:2
-  });
-});
+  })}
+);
+botonProbarproducto2.addEventListener("click", () => {
+  navBar.productoAgregado({
+    nombre: 'pupusa',
+    idProducto:2,
+    url: "https://imag.bonviveur.com/pupusas-salvadorenas.webp",
+    precio:12.50,
+  })});
+  botonProbarcombo.addEventListener("click", () => {
+  navBar.comboAgregado({
+    nombre: 'combo amigos',
+    idCombo:1,
+    url: "https://imag.bonviveur.com/pupusas-salvadorenas.webp",
+    precio:12.50,
+  })});
+
+

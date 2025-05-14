@@ -5,6 +5,7 @@
    --color--oscuro : #020202;
    --color--claro : #fffcff;
    --fuente-texto:20px;
+   --fuente-texto-pequenio:10px;
    --fuente-titulo:40px;
    --fuente-sub-titulo:30px
 }
@@ -22,8 +23,8 @@ body{
     
 }
 /* se eliminara */
-#botonParaProbarCard{
-    position: absolute;
+.botonProbarCard{
+    position: relative;
     width: 200px;
 }
 #productos-container{

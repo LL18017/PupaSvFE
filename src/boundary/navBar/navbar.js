@@ -6,6 +6,7 @@ class NavBar extends HTMLElement {
     this._root = this.attachShadow({ mode: "closed" });
     this.menuAbierto = false;
     this._carrito;
+    this._cantidadDeArticulos=0;
   }
 
   connectedCallback() {
@@ -14,54 +15,59 @@ class NavBar extends HTMLElement {
 
   render() {
     const link = html`
-      <link rel="stylesheet" href="./boundary/navBar/navBar.css" />
-    `;
-
-    const plantilla = html`
-      ${link}
-      <div
-        class="list-container"
-        style=${this.menuAbierto
-          ? "background-color: rgba(2, 2, 2, 0.7); height: 100vh;"
-          : "background-color: var(--color--principal); height: 80px;"}
+    <link rel="stylesheet" href="./boundary/navBar/navBar.css" />
+  `;
+  
+  const plantilla = html`
+    ${link}
+    <div
+      class="list-container"
+      style=${this.menuAbierto
+        ? "background-color: rgba(2, 2, 2, 0.7); height: 100vh;"
+        : "background-color: var(--color--principal); height: 80px;"}
+    >
+      <button
+        id="menu-button-cerrar"
+        style=${this.menuAbierto ? "display: block" : "display: none"}
+        @click=${() => this.buttonCerrar()}
       >
+        <img src="./css/assets/cerrar-blanco.png" />
+      </button>
+  
+      <button
+        id="menu-button-abrir"
+        style=${this.menuAbierto ? "display: none" : "display: block"}
+        @click=${() => this.buttonAbrir()}
+      >
+        <img src="./css/assets/menu-blanco.png" />
+      </button>
+  
+      <!-- Menú principal -->
+      <ul id="menu-lista" class=${this.menuAbierto ? "mostrar" : "ocultar"}>
+        <li @click=${() => this.inicionCLick()}>Inicio</li>
+        <li @click=${() => this.MenuCLick()}>Menu</li>
+        <li @click=${() => this.contactoClick()}>Contactos</li>
+      </ul>
+  
+      <!-- Carrito separado del ul para evitar transform -->
+      <div id="cartLi">
         <button
-          id="menu-button-cerrar"
-          style=${this.menuAbierto ? "display: block" : "display: none"}
-          @click=${() => this.buttonCerrar()}
+          id="boton-menu-cart"
+          @click=${() => this.cartClick()}
         >
-          <img src="./css/assets/cerrar-blanco.png" />
+          <div class='cartCardContainer'>
+            <span id='numberCartCard'><p id='number'>${this._cantidadDeArticulos}</p></span>
+            <img src="./css/assets/carrito-blanco.png">
+          </div>
+          <carrito-compras id="cartCard"></carrito-compras>
         </button>
-
-        <button
-          id="menu-button-abrir"
-          style=${this.menuAbierto ? "display: none" : "display: block"}
-          @click=${() => this.buttonAbrir()}
-        >
-          <img src="./css/assets/menu-blanco.png" />
-        </button>
-
-        <ul id="menu-lista" class=${this.menuAbierto ? "mostrar" : "ocultar"}>
-          <li @click=${() => this.inicionCLick()}>Inicio</li>
-          <li @click=${() => this.MenuCLick()}>Menu</li>
-          <!-- <li @click=${() => this.deliveryCLick()}>Delivery</li> -->
-          <li @click=${() => this.contactoClick()}>Contactos</li>
-          <li>
-            <button
-              id="boton-menu-cart"
-              style=${this.menuAbierto ? "display: none" : "display: block"}
-              @click=${() => this.cartClick()}
-            >
-              <img src="./css/assets/carrito-blanco.png" />
-              <carrito-compras id="cartCard"></carrito-compras>
-            </button>
-          </li>
-        </ul>
       </div>
-    `;
-
-    render(plantilla, this._root);
-    this._carrito = this._root.querySelector("#cartCard");
+    </div>
+  `;
+  
+  render(plantilla, this._root);
+  this._carrito = this._root.querySelector("#cartCard");
+  
   }
 
   buttonAbrir() {
@@ -149,10 +155,31 @@ class NavBar extends HTMLElement {
 
   productoAgregado(producto) {
     if (this._carrito) {
-      this._carrito.probar(producto);
+      this._carrito.agregarItemProductoCartCard(producto);
     } else {
       console.warn("No se encontró el carrito.");
     }
+  }
+
+  comboAgregado(combo) {
+    if (this._carrito) {
+      this._carrito.agregarItemComboCartCard(combo);
+    } else {
+      console.warn("No se encontró el carrito.");
+    }
+  }
+
+  itemAgregado(){
+    this._cantidadDeArticulos++;
+    console.log(this._cantidadDeArticulos);
+    
+    this.render();
+      
+  }
+  itemEliminado(){
+    this._cantidadDeArticulos--;
+    this.render();
+      
   }
 }
 
