@@ -86,4 +86,10 @@
     font-size: var(--fuente-texto);
     background-color: var(--color--principal);
     color: var(--color--claro);
+    transition: background-color 0.8s ease,transform 0.8s ease;
 }
+#btnCardPagar:hover{
+ transform: scale(1.2);
+ background-color: var(--color--secundario);
+}
+

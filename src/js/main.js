@@ -18,6 +18,7 @@ navBar.addEventListener("inicioClick", (e) => {
   mainTittle.style.display = "block";
   footer.style.display = "block";
   mainTittle.style.display = "block";
+ 
 });
 navBar.addEventListener("menuClick", (e) => {
   alert(`el elemento ${e.detail.element} dice ' ${e.detail.mensaje}'`);
@@ -25,6 +26,7 @@ navBar.addEventListener("menuClick", (e) => {
   mainTittle.style.display = "none";
   info.style.display = "none";
   footer.style.display = "none";
+  productosContainer.renderProductos();
 });
 navBar.addEventListener("contactoClick", (e) =>
   alert(`el elemento ${e.detail.element} dice ' ${e.detail.mensaje}'`)

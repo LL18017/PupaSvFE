@@ -47,6 +47,7 @@ class NavBar extends HTMLElement {
         <li @click=${() => this.inicionCLick()}>Inicio</li>
         <li @click=${() => this.MenuCLick()}>Menu</li>
         <li @click=${() => this.contactoClick()}>Contactos</li>
+         <li @click=${() => this.contactoClick()}>Pedidos</li>
       </ul>
   
       <!-- Carrito separado del ul para evitar transform -->

@@ -33,12 +33,11 @@ class Producto extends HTMLElement {
       .then((response) => response.json())
       .then((productos) => {
         this.productos = productos || [];
-        this.renderProductos();
       })
       .catch((error) => {
         console.error("Error al obtener los productos:", error);
         this.productos = [];
-        this.renderProductos(); // para mostrar error o vacío
+        // para mostrar error o vacío
       });
   }
   getDataCombo() {
@@ -47,7 +46,6 @@ class Producto extends HTMLElement {
       .then((response) => response.json())
       .then((combos) => {
         this.combos = combos || [];
-        this.renderCombos();
       })
       .catch((error) => {
         console.error("Error al obtener los productos:", error);
@@ -56,13 +54,20 @@ class Producto extends HTMLElement {
       });
   }
 
+  //metodo que se debe selecionar para renderizar productos basicos
   renderProductos() {
     render(this.templateProductosYCombos(), this._root);
   }
 
+   //metodo que se debe selecionar para renderizar combos basicos
   renderCombos() {
     render(this.templateProductosYCombos(), this._root);
   }
+
+   //metodo que se debe selecionar para renderizar productos nombre se debe setear los datos en this.productos
+
+    //metodo que se debe selecionar para renderizar combos por nombre se debe setear los datos en this.productos
+
 
   // Método que retorna la plantilla combinada de productos y combos
   templateProductosYCombos() {
