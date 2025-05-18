@@ -13,6 +13,10 @@ class Producto extends HTMLElement {
     this.comboAccess = new ComboAccess();
     this.productos = [];
     this.combos = [];
+    this.productosOriginales =[];
+    this.CombosOriginales = [];
+    this.textoBusqueda = "";
+    this.filtroSeleccionado= "todos";
   }
 
   //
@@ -25,6 +29,20 @@ class Producto extends HTMLElement {
 
     this.getDataProductos();
     this.getDataCombo();
+    this.eventoEnter();
+    this.eventoclickLista("elementoSeleccionado", this.handleElementoSeleccionado);
+  }
+
+  disconnectedCallback() {
+    this.removeEventListener("elementoSeleccionado", this.handleElementoSeleccionado); // Agregado
+  }
+
+  handleElementoSeleccionado(event) {
+    console.log("Evento elementoSeleccionado recibido:", event.detail);
+    // Aquí puedes agregar la lógica para manejar la selección, por ejemplo:
+    // - Mostrar detalles del producto/combo en otra parte de la página
+    // - Agregar el producto/combo al carrito de compras
+    // - Navegar a una página de detalles
   }
 
   getDataProductos() {
@@ -33,11 +51,14 @@ class Producto extends HTMLElement {
       .then((response) => response.json())
       .then((productos) => {
         this.productos = productos || [];
+        this.productosOriginales = [...this.productos];
+        this.renderProductos();
       })
       .catch((error) => {
         console.error("Error al obtener los productos:", error);
         this.productos = [];
-        // para mostrar error o vacío
+        this.productosOriginales = [];
+        this.renderProductos();
       });
   }
   getDataCombo() {
@@ -46,11 +67,14 @@ class Producto extends HTMLElement {
       .then((response) => response.json())
       .then((combos) => {
         this.combos = combos || [];
+        this.combosOriginales = [...this.combos];
+        this.renderCombos();
       })
       .catch((error) => {
-        console.error("Error al obtener los productos:", error);
+        console.error("Error al obtener los combos:", error);
         this.combos = [];
-        this.renderCombos(); // para mostrar error o vacío
+        this.combosOriginales = [];
+        this.renderCombos();
       });
   }
 
@@ -64,14 +88,72 @@ class Producto extends HTMLElement {
     render(this.templateProductosYCombos(), this._root);
   }
 
-   //metodo que se debe selecionar para renderizar productos nombre se debe setear los datos en this.productos
 
-    //metodo que se debe selecionar para renderizar combos por nombre se debe setear los datos en this.productos
+  filtrarPorTipoYNombre(filtro){
+    const textoBusqueda = this.textoBusqueda.toLowerCase();
+    this.textoBusqueda = textoBusqueda; // Corregido: this.textoBusqueda
+    this.filtroSeleccionado = filtro;
+
+    let productosFiltrados = []; // Cambiado de const a let
+    let combosFiltrados = [];     // Cambiado de const a let
+
+    if (filtro === "todos" || filtro === "productos") {
+      productosFiltrados = textoBusqueda
+        ? this.productosOriginales.filter((p) =>
+            p.nombre.toLowerCase().includes(textoBusqueda)
+          )
+        : [...this.productosOriginales];
+    } else {
+      productosFiltrados = [];
+    }
+    if (filtro === "todos" || filtro === "combos") {
+      combosFiltrados = textoBusqueda
+        ? this.combosOriginales.filter((c) =>
+            c.nombre.toLowerCase().includes(textoBusqueda)
+          )
+        : [...this.combosOriginales];
+    } else {
+      combosFiltrados = [];
+    }
+    this.productos = productosFiltrados; // Agregado
+    this.combos = combosFiltrados;     // Agregado
+    this.renderProductos();
+  }
+    //metodo para buscar por nombre para  renderizar combos y prodcutos por nombre 
+    filtrarBusqueda(e){
+      const textoBusqueda = e.target.value.toLowerCase();
+      this.textoBusqueda = textoBusqueda;
+
+    if (textoBusqueda) {
+      this.productos = this.productosOriginales.filter((producto) =>
+        producto.nombre.toLowerCase().includes(textoBusqueda)
+      );
+      this.combos = this.combosOriginales.filter((combo) =>
+        combo.nombre.toLowerCase().includes(textoBusqueda)
+      );
+    } else {
+      this.productos = [...this.productosOriginales];
+      this.combos = [...this.combosOriginales];
+    }
+    this.renderProductos();
+    }
 
 
   // Método que retorna la plantilla combinada de productos y combos
   templateProductosYCombos() {
     return html`
+      <div class="busqueda-container">
+                <input
+                  type="text"
+                  placeholder="Buscar por nombre..."
+                  @input="${(e) => this.almacenarValorBusqueda(e)}"
+                />
+                 <select @change="${(e) => this.filtrarPorTipoYNombre(e.target.value)}">
+                  <option value="todos" ?selected=${this.filtroSeleccionado === "todos"}>Todos</option>
+                  <option value="productos" ?selected=${this.filtroSeleccionado === "productos"}>Productos</option>
+                  <option value="combos" ?selected=${this.filtroSeleccionado === "combos"}>Combos</option>
+                </select>
+              </div>
       <!-- Sección de productos -->
       <section>
         ${this.productos.length === 0
@@ -79,14 +161,6 @@ class Producto extends HTMLElement {
               No hay productos disponibles.
             </div>`
           : html`
-              <div class="busqueda-container">
-                <input
-                  type="text"
-                  placeholder="Buscar por nombre..."
-                  @input="${(e) => this.filtrarBusqueda(e)}"
-                />
-              </div>
-
               <h1>Productos</h1>
               <div class="list-producto-container">
                 ${this.productos.map((producto) =>
@@ -149,6 +223,8 @@ class Producto extends HTMLElement {
       </div>
     `;
   }
+
+
   eventAgregarProducto(producto) {
     const evento = new CustomEvent("productoSeleccionado", {
       detail: {
@@ -175,6 +251,38 @@ class Producto extends HTMLElement {
 
     this.dispatchEvent(evento);
   }
+   almacenarValorBusqueda(e){
+    this.textoBusqueda = e.target.value;
+   }
+
+  seleccionarfiltro(e){
+    this.filtroSeleccionado = e.target.value;
+    this.filtrarPorTipoYNombre(this.filtroSeleccionado);
+  }
+
+  eventoEnter(){
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        console.log("Se presionó Enter");
+        this.filtrarBusqueda({ target: { value: this.textoBusqueda } });
+      }
+    });
+  }
+  eventoclickLista(event, item){
+    console.log("Elemento de la lista clickeado:", item);
+
+    const eventoSeleccion = new CustomEvent("elementoSeleccionado", {
+      detail: {
+        tipo: item.productoPrecioList ? "producto" : "combo",
+        item: item,
+      },
+      bubbles: true,
+      composed: true,
+    });
+    this.dispatchEvent(eventoSeleccion);
+
+  }
+  
 }
 
 customElements.define("producto-plantilla", Producto);
