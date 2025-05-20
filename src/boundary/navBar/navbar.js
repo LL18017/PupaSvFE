@@ -6,7 +6,7 @@ class NavBar extends HTMLElement {
     this._root = this.attachShadow({ mode: "closed" });
     this.menuAbierto = false;
     this._carrito;
-    this._cantidadDeArticulos=0;
+    this._cantidadDeArticulos = 0;
   }
 
   connectedCallback() {
@@ -15,60 +15,58 @@ class NavBar extends HTMLElement {
 
   render() {
     const link = html`
-    <link rel="stylesheet" href="./boundary/navBar/navBar.css" />
-  `;
-  
-  const plantilla = html`
-    ${link}
-    <div
-      class="list-container"
-      style=${this.menuAbierto
-        ? "background-color: rgba(2, 2, 2, 0.7); height: 100vh;"
-        : "background-color: var(--color--principal); height: 80px;"}
-    >
-      <button
-        id="menu-button-cerrar"
-        style=${this.menuAbierto ? "display: block" : "display: none"}
-        @click=${() => this.buttonCerrar()}
+      <link rel="stylesheet" href="./boundary/navBar/navBar.css" />
+    `;
+
+    const plantilla = html`
+      ${link}
+      <div
+        class="list-container"
+        style=${this.menuAbierto
+          ? "background-color: rgba(2, 2, 2, 0.7); height: 100vh;"
+          : "background-color: var(--color--principal); height: 80px;"}
       >
-        <img src="./css/assets/cerrar-blanco.png" />
-      </button>
-  
-      <button
-        id="menu-button-abrir"
-        style=${this.menuAbierto ? "display: none" : "display: block"}
-        @click=${() => this.buttonAbrir()}
-      >
-        <img src="./css/assets/menu-blanco.png" />
-      </button>
-  
-      <!-- Menú principal -->
-      <ul id="menu-lista" class=${this.menuAbierto ? "mostrar" : "ocultar"}>
-        <li @click=${() => this.inicionCLick()}>Inicio</li>
-        <li @click=${() => this.MenuCLick()}>Menu</li>
-        <li @click=${() => this.contactoClick()}>Contactos</li>
-         <li @click=${() => this.contactoClick()}>Pedidos</li>
-      </ul>
-  
-      <!-- Carrito separado del ul para evitar transform -->
-      <div id="cartLi">
         <button
-          id="boton-menu-cart"
-          @click=${() => this.cartClick()}
+          id="menu-button-cerrar"
+          style=${this.menuAbierto ? "display: block" : "display: none"}
+          @click=${() => this.buttonCerrar()}
         >
-          <div class='cartCardContainer'>
-            <span id='numberCartCard'><p id='number'>${this._cantidadDeArticulos}</p></span>
-            <img src="./css/assets/carrito-blanco.png">
-          </div>
-          <carrito-compras id="cartCard"></carrito-compras>
+          <img src="./css/assets/cerrar-blanco.png" />
         </button>
+
+        <button
+          id="menu-button-abrir"
+          style=${this.menuAbierto ? "display: none" : "display: block"}
+          @click=${() => this.buttonAbrir()}
+        >
+          <img src="./css/assets/menu-blanco.png" />
+        </button>
+
+        <!-- Menú principal -->
+        <ul id="menu-lista" class=${this.menuAbierto ? "mostrar" : "ocultar"}>
+          <li @click=${() => this.inicionCLick()}>Inicio</li>
+          <li @click=${() => this.MenuCLick()}>Menu</li>
+          <li @click=${() => this.contactoClick()}>Contactos</li>
+          <li @click=${() => this.contactoClick()}>Pedidos</li>
+        </ul>
+
+        <!-- Carrito separado del ul para evitar transform -->
+        <div id="cartLi">
+          <button id="boton-menu-cart" @click=${() => this.cartClick()}>
+            <div class="cartCardContainer">
+              <span id="numberCartCard"
+                ><p id="number">${this._cantidadDeArticulos}</p></span
+              >
+              <img src="./css/assets/carrito-blanco.png" />
+            </div>
+            <carrito-compras id="cartCard"></carrito-compras>
+          </button>
+        </div>
       </div>
-    </div>
-  `;
-  
-  render(plantilla, this._root);
-  this._carrito = this._root.querySelector("#cartCard");
-  
+    `;
+
+    render(plantilla, this._root);
+    this._carrito = this._root.querySelector("#cartCard");
   }
 
   buttonAbrir() {
@@ -170,17 +168,13 @@ class NavBar extends HTMLElement {
     }
   }
 
-  itemAgregado(){
+  itemAgregado() {
     this._cantidadDeArticulos++;
-    console.log(this._cantidadDeArticulos);
-    
     this.render();
-      
   }
-  itemEliminado(){
+  itemEliminado() {
     this._cantidadDeArticulos--;
     this.render();
-      
   }
 }
 

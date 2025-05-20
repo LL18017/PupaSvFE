@@ -3,8 +3,6 @@ import ComboAccess from "../../control/ComboAccess.js";
 import { html, render } from "../../js/terceros/lit-html.js";
 
 class Producto extends HTMLElement {
-
-
   constructor() {
     super();
     this._root = this.attachShadow({ mode: "open" }); // modo "open" para debug más fácil
@@ -13,10 +11,10 @@ class Producto extends HTMLElement {
     this.comboAccess = new ComboAccess();
     this.productos = [];
     this.combos = [];
-    this.productosOriginales =[];
+    this.productosOriginales = [];
     this.CombosOriginales = [];
     this.textoBusqueda = "";
-    this.filtroSeleccionado= "todos";
+    this.filtroSeleccionado = "todos";
   }
 
   //
@@ -30,11 +28,17 @@ class Producto extends HTMLElement {
     this.getDataProductos();
     this.getDataCombo();
     this.eventoEnter();
-    this.eventoclickLista("elementoSeleccionado", this.handleElementoSeleccionado);
+    this.eventoclickLista(
+      "elementoSeleccionado",
+      this.handleElementoSeleccionado
+    );
   }
 
   disconnectedCallback() {
-    this.removeEventListener("elementoSeleccionado", this.handleElementoSeleccionado); // Agregado
+    this.removeEventListener(
+      "elementoSeleccionado",
+      this.handleElementoSeleccionado
+    ); // Agregado
   }
 
   handleElementoSeleccionado(event) {
@@ -83,19 +87,18 @@ class Producto extends HTMLElement {
     render(this.templateProductosYCombos(), this._root);
   }
 
-   //metodo que se debe selecionar para renderizar combos basicos
+  //metodo que se debe selecionar para renderizar combos basicos
   renderCombos() {
     render(this.templateProductosYCombos(), this._root);
   }
 
-
-  filtrarPorTipoYNombre(filtro){
+  filtrarPorTipoYNombre(filtro) {
     const textoBusqueda = this.textoBusqueda.toLowerCase();
     this.textoBusqueda = textoBusqueda; // Corregido: this.textoBusqueda
     this.filtroSeleccionado = filtro;
 
     let productosFiltrados = []; // Cambiado de const a let
-    let combosFiltrados = [];     // Cambiado de const a let
+    let combosFiltrados = []; // Cambiado de const a let
 
     if (filtro === "todos" || filtro === "productos") {
       productosFiltrados = textoBusqueda
@@ -116,13 +119,13 @@ class Producto extends HTMLElement {
       combosFiltrados = [];
     }
     this.productos = productosFiltrados; // Agregado
-    this.combos = combosFiltrados;     // Agregado
+    this.combos = combosFiltrados; // Agregado
     this.renderProductos();
   }
-    //metodo para buscar por nombre para  renderizar combos y prodcutos por nombre 
-    filtrarBusqueda(e){
-      const textoBusqueda = e.target.value.toLowerCase();
-      this.textoBusqueda = textoBusqueda;
+  //metodo para buscar por nombre para  renderizar combos y prodcutos por nombre
+  filtrarBusqueda(e) {
+    const textoBusqueda = e.target.value.toLowerCase();
+    this.textoBusqueda = textoBusqueda;
 
     if (textoBusqueda) {
       this.productos = this.productosOriginales.filter((producto) =>
@@ -136,24 +139,38 @@ class Producto extends HTMLElement {
       this.combos = [...this.combosOriginales];
     }
     this.renderProductos();
-    }
-
+  }
 
   // Método que retorna la plantilla combinada de productos y combos
   templateProductosYCombos() {
     return html`
       <div class="busqueda-container">
-                <input
-                  type="text"
-                  placeholder="Buscar por nombre..."
-                  @input="${(e) => this.almacenarValorBusqueda(e)}"
-                />
-                 <select @change="${(e) => this.filtrarPorTipoYNombre(e.target.value)}">
-                  <option value="todos" ?selected=${this.filtroSeleccionado === "todos"}>Todos</option>
-                  <option value="productos" ?selected=${this.filtroSeleccionado === "productos"}>Productos</option>
-                  <option value="combos" ?selected=${this.filtroSeleccionado === "combos"}>Combos</option>
-                </select>
-              </div>
+        <input
+          type="text"
+          placeholder="Buscar por nombre..."
+          @input="${(e) => this.almacenarValorBusqueda(e)}"
+        />
+        <select @change="${(e) => this.filtrarPorTipoYNombre(e.target.value)}">
+          <option
+            value="todos"
+            ?selected=${this.filtroSeleccionado === "todos"}
+          >
+            Todos
+          </option>
+          <option
+            value="productos"
+            ?selected=${this.filtroSeleccionado === "productos"}
+          >
+            Productos
+          </option>
+          <option
+            value="combos"
+            ?selected=${this.filtroSeleccionado === "combos"}
+          >
+            Combos
+          </option>
+        </select>
+      </div>
       <!-- Sección de productos -->
       <section>
         ${this.productos.length === 0
@@ -224,7 +241,6 @@ class Producto extends HTMLElement {
     `;
   }
 
-
   eventAgregarProducto(producto) {
     const evento = new CustomEvent("productoSeleccionado", {
       detail: {
@@ -251,16 +267,16 @@ class Producto extends HTMLElement {
 
     this.dispatchEvent(evento);
   }
-   almacenarValorBusqueda(e){
+  almacenarValorBusqueda(e) {
     this.textoBusqueda = e.target.value;
-   }
+  }
 
-  seleccionarfiltro(e){
+  seleccionarfiltro(e) {
     this.filtroSeleccionado = e.target.value;
     this.filtrarPorTipoYNombre(this.filtroSeleccionado);
   }
 
-  eventoEnter(){
+  eventoEnter() {
     document.addEventListener("keydown", (event) => {
       if (event.key === "Enter") {
         console.log("Se presionó Enter");
@@ -268,9 +284,7 @@ class Producto extends HTMLElement {
       }
     });
   }
-  eventoclickLista(event, item){
-    console.log("Elemento de la lista clickeado:", item);
-
+  eventoclickLista(event, item) {
     const eventoSeleccion = new CustomEvent("elementoSeleccionado", {
       detail: {
         tipo: item.productoPrecioList ? "producto" : "combo",
@@ -280,9 +294,7 @@ class Producto extends HTMLElement {
       composed: true,
     });
     this.dispatchEvent(eventoSeleccion);
-
   }
-  
 }
 
 customElements.define("producto-plantilla", Producto);
