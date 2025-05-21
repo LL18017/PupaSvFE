@@ -1,16 +1,21 @@
 import { html, render } from "../../js/terceros/lit-html.js";
-
+import { carritoState } from "../../boundary/cart/carritoState.js";
 class NavBar extends HTMLElement {
   constructor() {
     super();
     this._root = this.attachShadow({ mode: "closed" });
     this.menuAbierto = false;
     this._carrito;
-    this._cantidadDeArticulos = 0;
+    this._onCarritoChange = this.render.bind(this);
   }
 
   connectedCallback() {
+    carritoState.subscribe(this._onCarritoChange); // Nos suscribimos a cambios
     this.render();
+  }
+
+  disconnectedCallback() {
+    carritoState.unsubscribe(this._onCarritoChange); // Limpiamos listener para evitar fugas de memoria
   }
 
   render() {
@@ -55,7 +60,7 @@ class NavBar extends HTMLElement {
           <button id="boton-menu-cart" @click=${() => this.cartClick()}>
             <div class="cartCardContainer">
               <span id="numberCartCard"
-                ><p id="number">${this._cantidadDeArticulos}</p></span
+                ><p id="number">${carritoState.getCantidadTotal()}</p></span
               >
               <img src="./css/assets/carrito-blanco.png" />
             </div>
@@ -67,6 +72,10 @@ class NavBar extends HTMLElement {
 
     render(plantilla, this._root);
     this._carrito = this._root.querySelector("#cartCard");
+  }
+  actualizarCardCart() {
+    this._carrito.render();
+    this.render();
   }
 
   buttonAbrir() {
@@ -166,15 +175,6 @@ class NavBar extends HTMLElement {
     } else {
       console.warn("No se encontró el carrito.");
     }
-  }
-
-  itemAgregado() {
-    this._cantidadDeArticulos++;
-    this.render();
-  }
-  itemEliminado() {
-    this._cantidadDeArticulos--;
-    this.render();
   }
 }
 

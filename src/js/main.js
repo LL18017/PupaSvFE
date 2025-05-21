@@ -1,6 +1,6 @@
 import dataAccess from "../control/dataAccess.js";
 import Interactividad from "./interactividad.js";
-
+import { carritoState } from "../../boundary/cart/carritoState.js";
 class AppController {
   constructor() {
     this.mainTittle = document.getElementById("main-tittle");
@@ -26,7 +26,7 @@ class AppController {
   iniciarEventos() {
     const { navBar, productosContainer, mainTittle, info, footer } = this;
 
-    navBar.addEventListener("inicioClick", (e) => {
+    document.addEventListener("inicioClick", (e) => {
       this.desaparecerElementos(this.listaComponentes, [
         this.navBar,
         this.info,
@@ -51,9 +51,6 @@ class AppController {
       }
     });
     navBar.addEventListener("clientePago", (e) => {
-      this.ZonaPago._listaProductos = e.detail.productos;
-      this.ZonaPago._listaCombos = e.detail.combos;
-      this.ZonaPago.actualizarListas();
       this.desaparecerElementos(this.listaComponentes, [
         this.navBar,
         this.footer,
@@ -71,16 +68,7 @@ class AppController {
     productosContainer.addEventListener("comboSeleccionado", (e) =>
       console.log(`Combo: ${e.detail.nombre}`)
     );
-
-    ZonaPago.addEventListener("agregarItemCart", (e) => {
-      if (e.detail.idProducto) {
-        navBar._carrito.agregarItemProductoCartCard(e.detail);
-      } else if (e.detail.idCombo) {
-        navBar._carrito.agregarItemComboCartCard(e.detail);
-      }
-    });
   }
-
   desaparecerElementos(listaElementos, listaExcepciones) {
     listaElementos.forEach((el) => {
       if (!listaExcepciones.includes(el)) {
@@ -97,7 +85,7 @@ class AppController {
       tipo: "producto",
       datos: {
         nombre: "coca",
-        idProducto: 1,
+        idProducto: 1001,
         url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNKD4uQkcygT38Vm8luf2QrP84OpENDHcXOg&s",
         precio: 1.5,
       },
@@ -107,7 +95,7 @@ class AppController {
       tipo: "producto",
       datos: {
         nombre: "pupusa",
-        idProducto: 2,
+        idProducto: 1002,
         url: "https://imag.bonviveur.com/pupusas-salvadorenas.webp",
         precio: 0.5,
       },
@@ -117,7 +105,7 @@ class AppController {
       tipo: "combo",
       datos: {
         nombre: "combo amigos",
-        idCombo: 1,
+        idCombo: 1001,
         url: "https://imag.bonviveur.com/pupusas-salvadorenas.webp",
         precio: 12.5,
       },
@@ -130,9 +118,11 @@ class AppController {
 
     boton.addEventListener("click", () => {
       if (tipo === "producto") {
-        this.navBar.productoAgregado(datos);
+        carritoState.agregarProducto(datos);
+        this.navBar.actualizarCardCart();
       } else if (tipo === "combo") {
-        this.navBar.comboAgregado(datos);
+        carritoState.agregarCombos(datos);
+        this.navBar.actualizarCardCart();
       }
     });
   }

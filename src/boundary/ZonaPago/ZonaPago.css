@@ -2,9 +2,6 @@
   color: black;
 }
 
-.list-container {
-  color: blue;
-}
 .carritoCompras {
   display: block;
 }
@@ -16,11 +13,81 @@ h3 {
 
 .container {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 3fr 2fr;
+  margin: 20px;
 }
 
 .container .resumen {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  border-radius: 16px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding: 10px 0;
+}
+
+.container .resumen .info {
+  text-align: center;
+  font-size: var(--fuente-texto);
   display: grid;
-  align-items: start;
-  place-content: center;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  width: 90%;
+}
+.container .resumen #selectSucursal,
+.container .resumen #selectFormaPago {
+  width: auto;
+  min-width: 100px;
+}
+.container .resumen .info button {
+  font-size: var(--fuente-texto);
+  justify-self: center;
+  width: 100px;
+  padding: 4px 0;
+  color: var(--color--claro);
+  background-color: var(--color--principal);
+  border: none;
+  border-radius: 16px;
+  transition: background 800ms ease, transform 800ms ease;
+}
+.container .resumen .info button:not(:disabled):hover {
+  background-color: var(--color--secundario);
+  transform: scale(1.15);
+}
+
+/* Estilo para botón deshabilitado */
+.container .resumen .info button:disabled {
+  background-color: color-mix(in srgb, var(--color--principal), #999 40%);
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.spinner-container {
+  position: absolute;
+  top: 0;
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 6px solid #ccc;
+  border-top: 6px solid var(--color--secundario); /* Color del sector visible */
+  border-radius: 50%;
+  animation: girar 1s linear infinite;
+}
+
+@keyframes girar {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }

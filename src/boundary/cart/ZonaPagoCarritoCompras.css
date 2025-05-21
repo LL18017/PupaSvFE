@@ -17,8 +17,8 @@
 }
 .list-container img {
   width: auto;
-  max-width: 120px;
-  max-height: 160px;
+  max-width: 60px;
+  max-height: 100px;
 }
 .list-container .articulosContainer {
   padding: 20px 0;
