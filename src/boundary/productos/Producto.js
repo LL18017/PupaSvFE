@@ -39,10 +39,6 @@ class Producto extends HTMLElement {
 
   handleElementoSeleccionado(event) {
     console.log("Evento elementoSeleccionado recibido:", event.detail);
-    // Aquí puedes agregar la lógica para manejar la selección, por ejemplo:
-    // - Mostrar detalles del producto/combo en otra parte de la página
-    // - Agregar el producto/combo al carrito de compras
-    // - Navegar a una página de detalles
   }
 
   getDataProductos() {
