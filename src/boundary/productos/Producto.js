@@ -88,53 +88,68 @@ class Producto extends HTMLElement {
     render(this.templateProductosYCombos(), this._root);
   }
 
+  //filtrar por nombre
   filtrarPorTipoYNombre(filtro) {
     const textoBusqueda = this.textoBusqueda.toLowerCase();
     this.textoBusqueda = textoBusqueda; // Corregido: this.textoBusqueda
     this.filtroSeleccionado = filtro;
-
-    let productosFiltrados = []; // Cambiado de const a let
-    let combosFiltrados = []; // Cambiado de const a let
-
-    if (filtro === "todos" || filtro === "productos") {
-      productosFiltrados = textoBusqueda
-        ? this.productosOriginales.filter((p) =>
-            p.nombre.toLowerCase().includes(textoBusqueda)
-          )
-        : [...this.productosOriginales];
-    } else {
-      productosFiltrados = [];
-    }
-    if (filtro === "todos" || filtro === "combos") {
-      combosFiltrados = textoBusqueda
-        ? this.combosOriginales.filter((c) =>
-            c.nombre.toLowerCase().includes(textoBusqueda)
-          )
-        : [...this.combosOriginales];
-    } else {
-      combosFiltrados = [];
-    }
-    this.productos = productosFiltrados; // Agregado
-    this.combos = combosFiltrados; // Agregado
-    this.renderProductos();
   }
+
   //metodo para buscar por nombre para  renderizar combos y prodcutos por nombre
   filtrarBusqueda(e) {
     const textoBusqueda = e.target.value.toLowerCase();
     this.textoBusqueda = textoBusqueda;
-
-    if (textoBusqueda) {
-      this.productos = this.productosOriginales.filter((producto) =>
-        producto.nombre.toLowerCase().includes(textoBusqueda)
-      );
-      this.combos = this.combosOriginales.filter((combo) =>
-        combo.nombre.toLowerCase().includes(textoBusqueda)
-      );
-    } else {
-      this.productos = [...this.productosOriginales];
-      this.combos = [...this.combosOriginales];
+    if (
+      textoBusqueda != "" &&
+      this.filtroSeleccionado.toLocaleLowerCase() === "productos"
+    ) {
+      this.combos = [];
+      this.productoAccess
+        .getDataPorNombre(this.textoBusqueda)
+        .then((productos) => {
+          this.productos = productos || [];
+          this.productosOriginales = [...this.productos];
+          this.renderProductos();
+        })
+        .catch((error) => {
+          console.error("Error al obtener los productos:", error);
+          this.productos = [];
+          this.productosOriginales = [];
+          this.renderProductos();
+        });
+    } else if (
+      textoBusqueda != "" &&
+      this.filtroSeleccionado.toLocaleLowerCase() === "combos"
+    ) {
+      this.productos = [];
+      this.comboAccess
+        .getDataPorNombre(this.textoBusqueda)
+        .then((combos) => {
+          this.combos = combos || [];
+          this.combosOriginales = [...this.combos];
+          this.renderCombos();
+        })
+        .catch((error) => {
+          console.error("Error al obtener los productos:", error);
+          this.combos = [];
+          this.combosOriginales = [];
+          this.renderCombos();
+        });
+    } else if (
+      textoBusqueda == "" &&
+      this.filtroSeleccionado.toLocaleLowerCase() === "productos"
+    ) {
+      this.combos = [];
+      this.getDataProductos();
+      this.renderProductos();
+    } else if (
+      textoBusqueda == "" &&
+      this.filtroSeleccionado.toLocaleLowerCase() === "combos"
+    ) {
+      this.productos = [];
+      this.getDataCombo();
+      this.renderCombos();
     }
-    this.renderProductos();
   }
 
   // Método que retorna la plantilla combinada de productos y combos
@@ -229,6 +244,8 @@ class Producto extends HTMLElement {
         </div>
         <div class="info">
           <h3 class="info">combo: ${combo.nombre}</h3>
+          <p class="info">descripcion: ${combo.descripcion}</p>
+          <p class="info">precio: ${combo.precio}</p>
         </div>
         <button @click=${(e) => this.eventAgregarCombo(combo)} id="btnAgregar">
           seleccionar
@@ -269,13 +286,12 @@ class Producto extends HTMLElement {
 
   seleccionarfiltro(e) {
     this.filtroSeleccionado = e.target.value;
-    this.filtrarPorTipoYNombre(this.filtroSeleccionado);
+    // this.filtrarPorTipoYNombre(this.filtroSeleccionado);
   }
 
   eventoEnter() {
     document.addEventListener("keydown", (event) => {
       if (event.key === "Enter") {
-        console.log("Se presionó Enter");
         this.filtrarBusqueda({ target: { value: this.textoBusqueda } });
       }
     });
