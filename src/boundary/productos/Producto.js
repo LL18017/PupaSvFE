@@ -310,3 +310,63 @@ class Producto extends HTMLElement {
 }
 
 customElements.define("producto-plantilla", Producto);
+
+// async buttonPagar() {
+//   this.cargando = true;
+//   //orden a ejecuatar
+//   const orden = new Orden(
+//     null,
+//     new Date().toISOString(),
+//     this.sucursalSeleccionada,
+//     false
+//   );
+
+//   // const response = await this.OrdenAccess.createData(orden);
+//   // const locationHeader = response.headers.get("Location"); // e.g., "v1/orden/klo/123"
+//   // const partes = locationHeader.split("/");
+//   // const idOrden = partes[partes.length - 1];
+//   const idOrden = 2;
+
+//   // const productosPersistir = carritoState.getProductos().map((p) => ({
+//   //   idProducto: p.idProducto,
+//   //   cantidad: p.cantidad,
+//   // }));
+
+//   // const combosPersistir = carritoState.getCombos().map((c) => ({
+//   //   idCombo: c.idCombo,
+//   //   cantidad: c.cantidad,
+//   // }));
+
+//   // const responseOd = await this.OrdenDetalleAccess.createDataMix(
+//   //   {
+//   //     productList: productosPersistir,
+//   //     comboList: combosPersistir,
+//   //   },
+//   //   idOrden
+//   // );
+
+//   //pago a ejecutar
+//   // orden.idOrden = idOrden;
+//   // const pago = new Pago(
+//   //   null,
+//   //   { idOrden: idOrden },
+//   //   new Date().toISOString(),
+//   //   this.formaPagoSeleccionada,
+//   //   null
+//   // );
+
+//   // const response = await this.PagoAccess.createData(pago);
+//   // const locationHeader = response.headers.get("Location"); // e.g., "v1/orden/klo/123"
+//   // console.log(response);
+//   // const partes = locationHeader.split("/");
+//   // const idPago = partes[partes.length - 1];
+
+//   console.log(this.pagosSeleccionados);
+
+//   setTimeout(() => {
+//     this.cargando = false;
+//     // this.formaPagoSeleccionada = "";
+//     // this.sucursalSeleccionada = "";
+//     this.render();
+//   }, 3000);
+// }
