@@ -3,8 +3,10 @@ import Pago from "../../entity/Pago.js";
 import OrdenAccess from "../../control/OrdenAccess.js";
 import PagoAccess from "../../control/PagoAccess.js";
 import OrdenDetalleAccess from "../../control/OrdenDetalleAccess.js";
+import PagoDetalleAccess from "../../control/PagoDetalleAccess.js";
 import { html, render } from "../../js/terceros/lit-html.js";
 import { carritoState } from "../cart/carritoState.js";
+import PagoDetalle from "../../entity/PagoDetalle.js";
 class ZonaPago extends HTMLElement {
   constructor() {
     super();
@@ -27,6 +29,7 @@ class ZonaPago extends HTMLElement {
     this.OrdenAccess = new OrdenAccess();
     this.PagoAccess = new PagoAccess();
     this.OrdenDetalleAccess = new OrdenDetalleAccess();
+    this.PagoDetalleAccess = new PagoDetalleAccess();
     this.pagosSeleccionados = [];
   }
   connectedCallback() {
@@ -102,7 +105,7 @@ class ZonaPago extends HTMLElement {
   // Al seleccionar una sucursal, se actualiza el estado
   seleccionarSucursal(e) {
     this.sucursalSeleccionada = e.target.value;
-    if (this.sucursalSeleccionada === "") this.formaPagoSeleccionada = "";
+    if (this.sucursalSeleccionada === "");
     // this.renderSelectorFormaPago();
     this.render();
   }
@@ -239,26 +242,27 @@ class ZonaPago extends HTMLElement {
       await new Promise((r) =>
         setTimeout(() => {
           r();
-        }, 3000)
-      ); // Esperar 3 segundos
+        }, 1000)
+      ); // Esperar 1 segundos
 
-      orden = this.crearOrden(orden);
+      orden = await this.crearOrden(orden);
 
-      this.crearOrdenDetalles(orden.idOrden);
+      await this.crearOrdenDetalles(orden.idOrden);
 
-      //creacion de pagos
-      this.pagosSeleccionados.forEach((p) => {
+      // creacion de pagos
+      this.pagosSeleccionados.forEach(async (p) => {
         let pago = new Pago(
           null,
           { idOrden: orden.idOrden },
           new Date().toISOString(),
-          this.pagosSeleccionados.forma,
+          p.forma,
           null
         );
-        this.crearPago(pago, p.cantidad);
+        await this.crearPago(pago, p.cantidad);
       });
 
       alert("PAGO EXISTOSO");
+      this.limpiar();
     } catch (error) {
       console.error("Error al procesar el pago:", error);
     } finally {
@@ -269,8 +273,6 @@ class ZonaPago extends HTMLElement {
 
   // Crea una nueva orden
   async crearOrden(orden) {
-    orden.idOrden = 3;
-    return orden;
     try {
       const response = await this.OrdenAccess.createData(orden);
       const locationHeader = response.headers.get("Location"); // e.g., "v1/orden/klo/123"
@@ -285,8 +287,6 @@ class ZonaPago extends HTMLElement {
 
   // Crea una nuev pago
   async crearPago(pago, monto) {
-    pago.idPago = 4;
-    return pago;
     try {
       const response = await this.PagoAccess.createData(pago);
       const locationHeader = response.headers.get("Location"); // e.g., "v1/orden/klo/123"
@@ -294,7 +294,7 @@ class ZonaPago extends HTMLElement {
       const idPago = partes[partes.length - 1];
       pago.idPago = idPago;
       //creacion de detalle
-      this.crearPagoDetalle(pago, cantidad);
+      await this.crearPagoDetalles(pago, monto);
       return pago;
     } catch (error) {
       alert("error al crear pago: " + error);
@@ -303,54 +303,27 @@ class ZonaPago extends HTMLElement {
   // Crea los detalles para el pago
   async crearPagoDetalles(pago, cantidad) {
     try {
-      await this.OrdenDetalleAccess
-        .createDataMix
-
-        //logica
-        ();
+      let detalle = new PagoDetalle(null, pago, cantidad, null);
+      await this.PagoDetalleAccess.createData(detalle, pago.idPago);
     } catch (error) {
-      alert("error al crear detalles de la orden: " + error);
-    }
-  }
-  // Crea los detalles para la orden
-  async crearPagoDetalle(idPago) {
-    const pagosPersistir = this.pagosSeleccionados;
-
-    //  logica de programacions
-
-    try {
-      pagosPersistir.forEach();
-      await this.OrdenDetalleAccess.createDataMix(
-        {
-          productList: productosPersistir,
-          comboList: combosPersistir,
-        },
-        idPago
-      );
-    } catch (error) {
-      alert("error al crear detalles de la orden: " + error);
+      alert("error al crear detalles del pago: " + error);
     }
   }
   // Crea los detalles para la orden
   async crearOrdenDetalles(idOrden) {
-    const productosPersistir = carritoState.getProductos().map((p) => ({
-      idProducto: p.idProducto,
-      cantidad: p.cantidad,
-    }));
-
-    const combosPersistir = carritoState.getCombos().map((c) => ({
-      idCombo: c.idCombo,
-      cantidad: c.cantidad,
-    }));
-
-    return;
-    //  logica de programacions
-
     try {
-      pagosPersistir.forEach();
+      const productosPersistir = carritoState.getProductos().map((p) => ({
+        idProducto: p.idProducto,
+        cantidad: p.cantidad,
+      }));
+
+      const combosPersistir = carritoState.getCombos().map((c) => ({
+        idCombo: c.idCombo,
+        cantidad: c.cantidad,
+      }));
       await this.OrdenDetalleAccess.createDataMix(
         {
-          productList: productosPersistir,
+          productoList: productosPersistir,
           comboList: combosPersistir,
         },
         idOrden
@@ -360,19 +333,6 @@ class ZonaPago extends HTMLElement {
     }
   }
 
-  // Crea los pagos seleccionados
-  async crearPagosParaOrden(idOrden) {
-    for (const p of this.pagosSeleccionados) {
-      const pago = new Pago(
-        null,
-        { idOrden },
-        new Date().toISOString(),
-        p.forma,
-        null
-      );
-      // await this.PagoAccess.createData(pago);
-    }
-  }
   //retorna datos para targetas o cuenta
   renderDatosPagoAdicionales(forma) {
     switch (forma) {
@@ -501,6 +461,18 @@ class ZonaPago extends HTMLElement {
       e.preventDefault();
     }
   }
+  limpiar() {
+    console.log("limpiando");
+
+    this.pagosSeleccionados = [];
+    carritoState.setCombos([]);
+    carritoState.setProductos([]);
+    this.sucursalSeleccionada = [];
+    carritoState._notify();
+
+    this.plantilla();
+  }
 }
 
 customElements.define("zona-pagos", ZonaPago);
+export const Zona = new ZonaPago();

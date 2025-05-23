@@ -79,16 +79,25 @@ class NavBar extends HTMLElement {
   }
 
   buttonAbrir() {
+    const cartElement = this._root.querySelector("#cartLi");
+    if (cartElement) {
+      cartElement.style.display = "none";
+    }
     this.menuAbierto = true;
     this.render();
   }
 
   buttonCerrar() {
+    const cartElement = this._root.querySelector("#cartLi");
+    if (cartElement) {
+      cartElement.style.display = "block";
+    }
     this.menuAbierto = false;
     this.render();
   }
 
   inicionCLick() {
+    this.buttonCerrar();
     this.dispatchEvent(
       new CustomEvent("inicioClick", {
         composed: true,
@@ -103,6 +112,7 @@ class NavBar extends HTMLElement {
   }
 
   MenuCLick() {
+    this.buttonCerrar();
     this.dispatchEvent(
       new CustomEvent("menuClick", {
         composed: true,
@@ -131,6 +141,7 @@ class NavBar extends HTMLElement {
   }
 
   contactoClick() {
+    this.buttonCerrar();
     this.dispatchEvent(
       new CustomEvent("contactoClick", {
         composed: true,
@@ -145,6 +156,7 @@ class NavBar extends HTMLElement {
   }
 
   cartClick() {
+    this.buttonCerrar();
     this.dispatchEvent(
       new CustomEvent("cartClick", {
         composed: true,

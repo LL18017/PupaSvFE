@@ -23,7 +23,7 @@
 .list-container .articulosContainer {
   padding: 20px 0;
   border-radius: 16px;
-  width: 60%;
+  width: 90%;
   max-height: 80%;
   align-items: center;
   justify-content: start;
@@ -78,4 +78,7 @@
 
 #btnCardPagar {
   display: none;
+}
+
+@media (min-width: 721px) {
 }

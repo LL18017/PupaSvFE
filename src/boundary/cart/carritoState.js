@@ -93,6 +93,12 @@ class CarritoState {
   getProductos() {
     return this.productos;
   }
+  setCombos(combos) {
+    this.combos = combos;
+  }
+  setProductos(productos) {
+    this.productos = productos;
+  }
 }
 
 export const carritoState = new CarritoState();

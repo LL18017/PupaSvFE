@@ -1,7 +1,7 @@
 class PagoDetalle {
-  constructor(idPagoDetalle, idPagoDetalleIdPago, monto, observaciones) {
-    this.idPagoDetalle = IdPago;
-    this.IdPago = IdPago;
+  constructor(idPagoDetalle, idPago, monto, observaciones) {
+    this.idPagoDetalle = idPagoDetalle;
+    this.idPago = idPago;
     this.monto = monto;
     this.observaciones = observaciones;
   }

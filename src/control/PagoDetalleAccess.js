@@ -1,19 +1,12 @@
 import dataAccess from "./dataAccess.js";
 
-class OrdenDetalleAccess extends dataAccess {
+class PagoDetalleAccess extends dataAccess {
   constructor() {
-    super("ordenDetalle");
+    super("pagoDetalle");
   }
 
-  /**
-   * @param {Array<Object>} datosMixtos - lista de objetos con idProductos, cantidadProductos, idCombos, cantidadCombo
-   * @param {number} idOrden - ID de la orden a enviar como query param
-   */
   createDataMix(datosMixtos, idOrden) {
-    console.log(datosMixtos);
-
-    console.log(`${this.URL}/mixto?idOrden=${idOrden}`);
-    console.log(idOrden);
+    console.log();
     if (!idOrden || typeof datosMixtos !== "object" || datosMixtos === null) {
       throw new Error("Faltan datos requeridos");
     }
@@ -28,4 +21,4 @@ class OrdenDetalleAccess extends dataAccess {
   }
 }
 
-export default OrdenDetalleAccess;
+export default PagoDetalleAccess;

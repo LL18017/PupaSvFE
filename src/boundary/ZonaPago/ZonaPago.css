@@ -107,3 +107,10 @@ h3 {
     transform: rotate(360deg);
   }
 }
+
+/* MEDIA QUERY */
+@media (max-width: 720px) {
+  .container {
+    grid-template-columns: 1fr;
+  }
+}

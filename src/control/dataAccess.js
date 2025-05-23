@@ -38,10 +38,12 @@ class dataAccess {
     });
   }
 
-  createData(registro) {
-    console.log(registro);
-
-    return fetch(this.URL, {
+  createData(registro, id) {
+    let uri = "";
+    if (id) {
+      uri += `/${id}`;
+    }
+    return fetch(this.URL + uri, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
