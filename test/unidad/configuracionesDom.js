@@ -9,3 +9,6 @@ global.document = dom.window.document;
 global.navigator = dom.window.navigator;
 global.HTMLElement = dom.window.HTMLElement;
 global.customElements = dom.window.customElements;
+global.CustomEvent = dom.window.CustomEvent;
+
+

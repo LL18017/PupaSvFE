@@ -2,7 +2,7 @@ import { assert } from 'chai';
 import sinon from 'sinon';
 import ProductoAccess from '../../src/control/productoAccess.js';
 
-describe('ProductoTest', () => {
+describe('ProductoAccessTest', () => {
   let producto;
   let fetchStub;
 
@@ -22,8 +22,8 @@ describe('ProductoTest', () => {
     assert.instanceOf(instance, ProductoAccess);
   });
 
-  
-  it('productos findRange debería obtener los productos', async () => {
+
+  it('findRange debería obtener los productos', async () => {
 
     //indicamos que debe devolver la peticion
     fetchStub.resolves({
@@ -50,7 +50,7 @@ describe('ProductoTest', () => {
     assert.strictEqual(calledUrl, 'http://localhost:9080/PupaSv-1.0-SNAPSHOT/v1/producto', 'URL incorrecta');
   });
 
-  it('productos findById debería obtener un producto en específico', async () => {
+  it('findById debería obtener un producto en específico', async () => {
     fetchStub.resolves({
       json: () => Promise.resolve({
         producto: { id: 1, nombre: 'Producto 1' }
@@ -69,7 +69,7 @@ describe('ProductoTest', () => {
     assert.strictEqual(calledUrl, 'http://localhost:9080/PupaSv-1.0-SNAPSHOT/v1/producto/1', 'URL incorrecta');
   });
 
-  it('productos UpdateData debería actualizar un producto en específico y retornarlo', async () => {
+  it('UpdateData debería actualizar un producto en específico y retornarlo', async () => {
     fetchStub.resolves({
       json: () => Promise.resolve({
         producto: { id: 1, nombre: 'Producto 1 actualizado' }
@@ -77,7 +77,7 @@ describe('ProductoTest', () => {
       status: 201
     });
 
-    const response = await producto.updateData({nombre:"Producto 1 actualizado"},1);
+    const response = await producto.updateData({ nombre: "Producto 1 actualizado" }, 1);
     const data = await response.json();
 
     assert.isObject(data.producto, 'producto debe ser un objeto');
@@ -88,12 +88,12 @@ describe('ProductoTest', () => {
     assert.strictEqual(calledUrl, 'http://localhost:9080/PupaSv-1.0-SNAPSHOT/v1/producto/1', 'URL incorrecta');
   });
 
-  it('productos createData debería crear un producto', async () => {
+  it('createData debería crear un producto', async () => {
     fetchStub.resolves({
       status: 200
     });
 
-    const response = await producto.updateData({nombre:"Producto 3 creado"});
+    const response = await producto.updateData({ nombre: "Producto 3 creado" });
 
     assert.strictEqual(response.status, 200, 'el estatus deberia ser 200');
 
@@ -101,7 +101,7 @@ describe('ProductoTest', () => {
     assert.strictEqual(calledUrl, 'http://localhost:9080/PupaSv-1.0-SNAPSHOT/v1/producto', 'URL incorrecta');
   });
 
-  it('productos deleteData debería eliminar un producto', async () => {
+  it('deleteData debería eliminar un producto', async () => {
     fetchStub.resolves({
       status: 201
     });

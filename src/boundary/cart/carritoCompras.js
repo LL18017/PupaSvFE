@@ -32,11 +32,11 @@ class CarriroCompras extends HTMLElement {
       <div class="list-container">
         ${carritoState.getProductos().length === 0 &&
         carritoState.getCombos().length === 0
-          ? html`<p>No has seleccionado ningún producto</p>`
-          : html`
+        ? html`<p>No has seleccionado ningún producto</p>`
+        : html`
               <div class="articulosContainer">
                 ${carritoState.productos.map(
-                  (p) => html`
+          (p) => html`
                     <div class="producto">
                       <img src="${p.url}" />
                       <div class="info-container">
@@ -60,9 +60,9 @@ class CarriroCompras extends HTMLElement {
                       </div>
                     </div>
                   `
-                )}
+        )}
                 ${carritoState.combos.map(
-                  (p) => html`
+          (p) => html`
                     <div class="producto">
                       <img src="${p.url}" />
                       <div class="info-container">
@@ -86,7 +86,7 @@ class CarriroCompras extends HTMLElement {
                       </div>
                     </div>
                   `
-                )}
+        )}
               </div>
 
               <button @click=${() => this.pagoDeArticulos()} id="btnCardPagar">
@@ -104,10 +104,6 @@ class CarriroCompras extends HTMLElement {
       new CustomEvent("clientePago", {
         composed: true,
         bubbles: true,
-        detail: {
-          productos: this._listaProductos,
-          combos: this._listaCombos,
-        },
       })
     );
   }

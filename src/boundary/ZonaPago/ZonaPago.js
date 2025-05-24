@@ -194,11 +194,7 @@ class ZonaPago extends HTMLElement {
         ? "red"
         : "black";
 
-    return html`
-      <p style="color: ${color}">
-        Total pagado: $${this.totalPagado().toFixed(2)}
-      </p>
-    `;
+    return html`<p style="color: ${color}">Total pagado: $${this.totalPagado().toFixed(2)}</p>`;
   }
 
   renderSelectorFormaPago() {

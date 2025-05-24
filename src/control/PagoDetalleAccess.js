@@ -6,7 +6,6 @@ class PagoDetalleAccess extends dataAccess {
   }
 
   createDataMix(datosMixtos, idOrden) {
-    console.log();
     if (!idOrden || typeof datosMixtos !== "object" || datosMixtos === null) {
       throw new Error("Faltan datos requeridos");
     }

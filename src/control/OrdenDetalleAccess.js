@@ -10,10 +10,6 @@ class OrdenDetalleAccess extends dataAccess {
    * @param {number} idOrden - ID de la orden a enviar como query param
    */
   createDataMix(datosMixtos, idOrden) {
-    console.log(datosMixtos);
-
-    console.log(`${this.URL}/mixto?idOrden=${idOrden}`);
-    console.log(idOrden);
     if (!idOrden || typeof datosMixtos !== "object" || datosMixtos === null) {
       throw new Error("Faltan datos requeridos");
     }
