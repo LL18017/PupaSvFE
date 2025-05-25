@@ -14,7 +14,7 @@ class Producto extends HTMLElement {
     this.combosOriginales = []; // Copia completa de todos los combos
     this.textoBusqueda = ""; // Almacena el texto actual de la barra de búsqueda
     this.filtroSeleccionado = "productos"; //"productos", "combos"
-    this.prodcutosMap= new Map();
+    this.prodcutosMap = new Map();
   }
 
   connectedCallback() {
@@ -27,7 +27,7 @@ class Producto extends HTMLElement {
     this.getDataProductos().then(() => {
       this.getDataCombo();
     })
-    this.eventoEnter(); 
+    this.eventoEnter();
   }
 
   getDataProductos() {
@@ -69,7 +69,7 @@ class Producto extends HTMLElement {
           }
           return { ...combo, nombresProductosIncluidos };
         });
-        this.aplicarFiltros(); 
+        this.aplicarFiltros();
       })
       .catch((error) => {
         console.error("Error al obtener los combos:", error);
@@ -86,7 +86,7 @@ class Producto extends HTMLElement {
 
   // Método central para aplicar todos los filtros (búsqueda por nombre y por tipo)
   aplicarFiltros() {
- const textoBusquedaLower = this.textoBusqueda.toLowerCase();
+    const textoBusquedaLower = this.textoBusqueda.toLowerCase();
 
     let productosFiltradosPorBusqueda = this.productosOriginales.filter(
       (producto) =>
@@ -163,9 +163,9 @@ class Producto extends HTMLElement {
         <h1>Productos</h1>
         <div class="list-producto-container">
           ${this.productos.length === 0
-            ? html`<div class="no-disponible">No hay productos disponibles.</div>`
-            : this.productos.map((producto) => this.crearTarjetaProducto(producto))
-          }
+        ? html`<div class="no-disponible">No hay productos disponibles.</div>`
+        : this.productos.map((producto) => this.crearTarjetaProducto(producto))
+      }
         </div>
       </section>
 
@@ -173,9 +173,9 @@ class Producto extends HTMLElement {
         <h1>Combos</h1>
         <div class="list-combo-container">
           ${this.combos.length === 0
-            ? html`<div class="no-disponible">No hay combos disponibles.</div>`
-            : this.combos.map((combo) => this.crearTarjetaCombo(combo))
-          }
+        ? html`<div class="no-disponible">No hay combos disponibles.</div>`
+        : this.combos.map((combo) => this.crearTarjetaCombo(combo))
+      }
         </div>
       </section>
     `;
@@ -224,6 +224,7 @@ class Producto extends HTMLElement {
   eventAgregarProducto(producto) {
     const evento = new CustomEvent("productoSeleccionado", {
       detail: {
+        idProducto: producto.idProducto,
         nombre: producto.nombre,
         precio: producto.productoPrecioList[0].precioSugerido,
         url: producto.url,
@@ -238,6 +239,7 @@ class Producto extends HTMLElement {
   eventAgregarCombo(combo) {
     const evento = new CustomEvent("comboSeleccionado", {
       detail: {
+        idCombo: combo.idCombo,
         nombre: combo.nombre,
         url: combo.url,
       },
