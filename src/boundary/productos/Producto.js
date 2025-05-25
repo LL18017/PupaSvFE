@@ -5,19 +5,18 @@ import { html, render } from "../../js/terceros/lit-html.js";
 class Producto extends HTMLElement {
   constructor() {
     super();
-    this._root = this.attachShadow({ mode: "open" }); // modo "open" para debug más fácil
-    //PROPIEDADES
+    this._root = this.attachShadow({ mode: "open" });
     this.productoAccess = new ProductoAccess();
     this.comboAccess = new ComboAccess();
     this.productos = [];
     this.combos = [];
-    this.productosOriginales = [];
-    this.CombosOriginales = [];
-    this.textoBusqueda = "";
-    this.filtroSeleccionado = "todos";
+    this.productosOriginales = []; // Copia completa de todos los productos
+    this.combosOriginales = []; // Copia completa de todos los combos
+    this.textoBusqueda = ""; // Almacena el texto actual de la barra de búsqueda
+    this.filtroSeleccionado = "productos"; //"productos", "combos"
+    this.prodcutosMap= new Map();
   }
 
-  //
   connectedCallback() {
     const link = document.createElement("link");
     link.setAttribute("rel", "stylesheet");
@@ -25,131 +24,125 @@ class Producto extends HTMLElement {
 
     this._root.appendChild(link);
 
-    this.getDataProductos();
-    this.getDataCombo();
-    this.eventoEnter();
-    this.eventoclickLista(
-      "elementoSeleccionado",
-      this.handleElementoSeleccionado
-    );
-  }
-
-  disconnectedCallback() {
-    this.removeEventListener(
-      "elementoSeleccionado",
-      this.handleElementoSeleccionado
-    ); // Agregado
-  }
-
-  handleElementoSeleccionado(event) {
-    console.log("Evento elementoSeleccionado recibido:", event.detail);
+    this.getDataProductos().then(() => {
+      this.getDataCombo();
+    })
+    this.eventoEnter(); 
   }
 
   getDataProductos() {
-    this.productoAccess
+    return this.productoAccess
       .getData()
       .then((response) => response.json())
       .then((productos) => {
         this.productos = productos || [];
-        this.productosOriginales = [...this.productos];
-        this.renderProductos();
+        this.productosOriginales = [...this.productos]; // Guarda la copia original
+        this.productosMap = new Map(
+          this.productosOriginales.map((p) => [p.idProducto, p.nombre])
+        );
+        this.aplicarFiltros();
       })
       .catch((error) => {
         console.error("Error al obtener los productos:", error);
         this.productos = [];
         this.productosOriginales = [];
-        this.renderProductos();
+        this.aplicarFiltros();
       });
   }
+
   getDataCombo() {
-    this.comboAccess
+    return this.comboAccess
       .getData()
       .then((response) => response.json())
       .then((combos) => {
         this.combos = combos || [];
-        this.combosOriginales = [...this.combos];
-        this.renderCombos();
+        this.combosOriginales = this.combos.map((combo) => {
+          const nombresProductosIncluidos = [];
+
+          if (combo.comboDetalleList && Array.isArray(combo.comboDetalleList)) {
+            combo.comboDetalleList.forEach((detalle) => {
+              const productName = this.productosMap.get(detalle.idProducto);
+              if (productName) {
+                nombresProductosIncluidos.push(productName);
+              }
+            });
+          }
+          return { ...combo, nombresProductosIncluidos };
+        });
+        this.aplicarFiltros(); 
       })
       .catch((error) => {
         console.error("Error al obtener los combos:", error);
         this.combos = [];
         this.combosOriginales = [];
-        this.renderCombos();
+        this.aplicarFiltros();
       });
   }
 
-  //metodo que se debe selecionar para renderizar productos basicos
-  renderProductos() {
+  // Método para renderizar la plantilla (productos y combos)
+  renderProductos() { // Este método ahora es más general, ya que renderiza ambos
     render(this.templateProductosYCombos(), this._root);
   }
 
-  //metodo que se debe selecionar para renderizar combos basicos
-  renderCombos() {
-    render(this.templateProductosYCombos(), this._root);
-  }
+  // Método central para aplicar todos los filtros (búsqueda por nombre y por tipo)
+  aplicarFiltros() {
+ const textoBusquedaLower = this.textoBusqueda.toLowerCase();
 
-  //filtrar por nombre
-  filtrarPorTipoYNombre(filtro) {
-    const textoBusqueda = this.textoBusqueda.toLowerCase();
-    this.textoBusqueda = textoBusqueda; // Corregido: this.textoBusqueda
-    this.filtroSeleccionado = filtro;
-  }
+    let productosFiltradosPorBusqueda = this.productosOriginales.filter(
+      (producto) =>
+        producto &&
+        producto.nombre &&
+        producto.nombre.toLowerCase().includes(textoBusquedaLower)
+    );
 
-  //metodo para buscar por nombre para  renderizar combos y prodcutos por nombre
-  filtrarBusqueda(e) {
-    const textoBusqueda = e.target.value.toLowerCase();
-    this.textoBusqueda = textoBusqueda;
-    if (
-      textoBusqueda != "" &&
-      this.filtroSeleccionado.toLocaleLowerCase() === "productos"
-    ) {
+    let combosFiltradosPorBusqueda = this.combosOriginales.filter((combo) => {
+      if (!combo || typeof combo !== "object" || !combo.nombre) {
+        return false;
+      }
+
+      const comboNameLower = combo.nombre.toLowerCase();
+      const comboDescriptionLower = (combo.descripcion || "").toString().toLowerCase();
+
+      // Criterio 1: El texto de búsqueda está en el nombre del combo o en su descripción
+      if (
+        comboNameLower.includes(textoBusquedaLower) ||
+        comboDescriptionLower.includes(textoBusquedaLower)
+      ) {
+        return true;
+      }
+      if (combo.nombresProductosIncluidos && Array.isArray(combo.nombresProductosIncluidos)) {
+        return combo.nombresProductosIncluidos.some(productName =>
+          productName && productName.toLowerCase().includes(textoBusquedaLower)
+        );
+      }
+
+      return false;
+    });
+
+    if (this.filtroSeleccionado === "productos") {
+      this.productos = productosFiltradosPorBusqueda;
       this.combos = [];
-      this.productoAccess
-        .getDataPorNombre(this.textoBusqueda)
-        .then((productos) => {
-          this.productos = productos || [];
-          this.productosOriginales = [...this.productos];
-          this.renderProductos();
-        })
-        .catch((error) => {
-          console.error("Error al obtener los productos:", error);
-          this.productos = [];
-          this.productosOriginales = [];
-          this.renderProductos();
-        });
-    } else if (
-      textoBusqueda != "" &&
-      this.filtroSeleccionado.toLocaleLowerCase() === "combos"
-    ) {
+    } else if (this.filtroSeleccionado === "combos") {
       this.productos = [];
-      this.comboAccess
-        .getDataPorNombre(this.textoBusqueda)
-        .then((combos) => {
-          this.combos = combos || [];
-          this.combosOriginales = [...this.combos];
-          this.renderCombos();
-        })
-        .catch((error) => {
-          console.error("Error al obtener los productos:", error);
-          this.combos = [];
-          this.combosOriginales = [];
-          this.renderCombos();
-        });
-    } else if (
-      textoBusqueda == "" &&
-      this.filtroSeleccionado.toLocaleLowerCase() === "productos"
-    ) {
-      this.combos = [];
-      this.getDataProductos();
-      this.renderProductos();
-    } else if (
-      textoBusqueda == "" &&
-      this.filtroSeleccionado.toLocaleLowerCase() === "combos"
-    ) {
-      this.productos = [];
-      this.getDataCombo();
-      this.renderCombos();
+      this.combos = combosFiltradosPorBusqueda;
+    } else {
+      this.productos = productosFiltradosPorBusqueda;
+      this.combos = combosFiltradosPorBusqueda;
     }
+
+    this.renderProductos();
+  }
+
+  // Almacena el valor del input de búsqueda.
+  almacenarValorBusqueda(e) {
+    this.textoBusqueda = e.target.value;
+
+  }
+
+  // Cambia el tipo de filtro seleccionado y dispara el filtro unificado
+  cambiarFiltro(e) {
+    this.filtroSeleccionado = e.target.value;
+    this.aplicarFiltros(); // Llama al método unificado para aplicar ambos filtros
   }
 
   // Método que retorna la plantilla combinada de productos y combos
@@ -159,57 +152,31 @@ class Producto extends HTMLElement {
         <input
           type="text"
           placeholder="Buscar por nombre..."
-          @input="${(e) => this.almacenarValorBusqueda(e)}"
+          .value="${this.textoBusqueda}" @input="${(e) => this.almacenarValorBusqueda(e)}"
         />
-        <select @change="${(e) => this.filtrarPorTipoYNombre(e.target.value)}">
-          <option
-            value="todos"
-            ?selected=${this.filtroSeleccionado === "todos"}
-          >
-            Todos
-          </option>
-          <option
-            value="productos"
-            ?selected=${this.filtroSeleccionado === "productos"}
-          >
-            Productos
-          </option>
-          <option
-            value="combos"
-            ?selected=${this.filtroSeleccionado === "combos"}
-          >
-            Combos
-          </option>
+        <select @change="${this.cambiarFiltro.bind(this)}">
+          <option value="productos" ?selected=${this.filtroSeleccionado === "productos"}>Productos</option>
+          <option value="combos" ?selected=${this.filtroSeleccionado === "combos"}>Combos</option>
         </select>
       </div>
-      <!-- Sección de productos -->
       <section>
-        ${this.productos.length === 0
-          ? html`<div class="list-producto-container">
-              No hay productos disponibles.
-            </div>`
-          : html`
-              <h1>Productos</h1>
-              <div class="list-producto-container">
-                ${this.productos.map((producto) =>
-                  this.crearTarjetaProducto(producto)
-                )}
-              </div>
-            `}
+        <h1>Productos</h1>
+        <div class="list-producto-container">
+          ${this.productos.length === 0
+            ? html`<div class="no-disponible">No hay productos disponibles.</div>`
+            : this.productos.map((producto) => this.crearTarjetaProducto(producto))
+          }
+        </div>
       </section>
 
-      <!-- Sección de combos -->
       <section>
-        ${this.combos.length === 0
-          ? html`<div class="list-combo-container">
-              No hay combos disponibles.
-            </div>`
-          : html`
-              <h1>Combos</h1>
-              <div class="list-combo-container">
-                ${this.combos.map((combo) => this.crearTarjetaCombo(combo))}
-              </div>
-            `}
+        <h1>Combos</h1>
+        <div class="list-combo-container">
+          ${this.combos.length === 0
+            ? html`<div class="no-disponible">No hay combos disponibles.</div>`
+            : this.combos.map((combo) => this.crearTarjetaCombo(combo))
+          }
+        </div>
       </section>
     `;
   }
@@ -280,32 +247,14 @@ class Producto extends HTMLElement {
 
     this.dispatchEvent(evento);
   }
-  almacenarValorBusqueda(e) {
-    this.textoBusqueda = e.target.value;
-  }
-
-  seleccionarfiltro(e) {
-    this.filtroSeleccionado = e.target.value;
-    // this.filtrarPorTipoYNombre(this.filtroSeleccionado);
-  }
 
   eventoEnter() {
     document.addEventListener("keydown", (event) => {
       if (event.key === "Enter") {
-        this.filtrarBusqueda({ target: { value: this.textoBusqueda } });
+        console.log("Se presionó Enter");
+        this.aplicarFiltros(); // Llama al método unificado para aplicar ambos filtros
       }
     });
-  }
-  eventoclickLista(event, item) {
-    const eventoSeleccion = new CustomEvent("elementoSeleccionado", {
-      detail: {
-        tipo: item.productoPrecioList ? "producto" : "combo",
-        item: item,
-      },
-      bubbles: true,
-      composed: true,
-    });
-    this.dispatchEvent(eventoSeleccion);
   }
 }
 
