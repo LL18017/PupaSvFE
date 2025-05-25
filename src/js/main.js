@@ -21,9 +21,16 @@ class AppController {
     ];
     this.iniciarEventos();
     this.configurarBotonesPrueba();
+
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("../serviceWorker.js")
+        .then()
+        .catch(e => console.warn(e))
+    }
   }
 
   iniciarEventos() {
+    this.ZonaPago.style.display = "none";
     const { navBar, productosContainer, mainTittle, info, footer } = this;
 
     document.addEventListener("inicioClick", (e) => {
@@ -49,6 +56,13 @@ class AppController {
       } else {
         console.warn("No se encontró el footer.");
       }
+    });
+    navBar.addEventListener("pepidoCLick", (e) => {
+      this.desaparecerElementos(this.listaComponentes, [
+        this.navBar,
+        this.footer,
+        this.ZonaPago,
+      ]);
     });
     navBar.addEventListener("clientePago", (e) => {
       this.desaparecerElementos(this.listaComponentes, [
@@ -115,6 +129,7 @@ class AppController {
   configurarBotonProducto(idBoton, { tipo, datos }) {
     const boton = document.getElementById(idBoton);
     if (!boton) return;
+    console.log("jbap");
 
     boton.addEventListener("click", () => {
       if (tipo === "producto") {

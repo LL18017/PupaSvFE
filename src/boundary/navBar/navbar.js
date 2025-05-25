@@ -28,8 +28,8 @@ class NavBar extends HTMLElement {
       <div
         class="list-container"
         style=${this.menuAbierto
-          ? "background-color: rgba(2, 2, 2, 0.7); height: 100vh;"
-          : "background-color: var(--color--principal); height: 80px;"}
+        ? "background-color: rgba(2, 2, 2, 0.7); height: 100vh;"
+        : "background-color: var(--color--principal); height: 80px;"}
       >
         <button
           id="menu-button-cerrar"
@@ -52,7 +52,7 @@ class NavBar extends HTMLElement {
           <li @click=${() => this.inicionCLick()}>Inicio</li>
           <li @click=${() => this.MenuCLick()}>Menu</li>
           <li @click=${() => this.contactoClick()}>Contactos</li>
-          <li @click=${() => this.contactoClick()}>Pedidos</li>
+          <li @click=${() => this.pepidoCLick()}>Pedidos</li>
         </ul>
 
         <!-- Carrito separado del ul para evitar transform -->
@@ -126,9 +126,9 @@ class NavBar extends HTMLElement {
     );
   }
 
-  deliveryCLick() {
+  pepidoCLick() {
     this.dispatchEvent(
-      new CustomEvent("deliveryClick", {
+      new CustomEvent("pepidoCLick", {
         composed: true,
         bubbles: true,
         detail: {
