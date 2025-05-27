@@ -8,18 +8,14 @@ const dom = new JSDOM(`<!DOCTYPE html><html><body></body></html>`, {
 global.window = dom.window;
 global.document = dom.window.document;
 
-// NO reasignar global.navigator, solo usar el del dom
-// Si necesitas modificar userAgent, hazlo así:
-Object.defineProperty(global.window.navigator, 'userAgent', {
-    value: 'node.js',
+// Redefinimos global.navigator como una propiedad de solo lectura que devuelve dom.window.navigator
+Object.defineProperty(global, 'navigator', {
     configurable: true,
-    writable: false,
-    enumerable: true
+    enumerable: true,
+    get: () => dom.window.navigator,
 });
 
-global.navigator = global.window.navigator;
-
-global.HTMLElement = global.window.HTMLElement;
-global.customElements = global.window.customElements;
-global.CustomEvent = global.window.CustomEvent;
-global.localStorage = global.window.localStorage;
+global.HTMLElement = dom.window.HTMLElement;
+global.customElements = dom.window.customElements;
+global.CustomEvent = dom.window.CustomEvent;
+global.localStorage = dom.window.localStorage;
