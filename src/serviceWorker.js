@@ -21,7 +21,7 @@ const FILES_TO_CACHE = [
     "/boundary/ZonaPago/ZonaPago.js",
     "/serviceWorker.js",
     "/index.html",
-    "/js/main.js",
+    "/js/AppController.js",
     "/js/terceros/lit-html.js",
     "/control/ComboAccess.js",
     "/control/productoAccess.js",

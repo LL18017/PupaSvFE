@@ -241,6 +241,7 @@ class Producto extends HTMLElement {
       detail: {
         idCombo: combo.idCombo,
         nombre: combo.nombre,
+        precio: combo.precio,
         url: combo.url,
       },
       bubbles: true,

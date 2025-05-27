@@ -7,10 +7,12 @@ class NavBar extends HTMLElement {
     this.menuAbierto = false;
     this._carrito;
     this._onCarritoChange = this.render.bind(this);
+    this._onOrdenChange = this.renderCarrito.bind(this);
   }
 
   connectedCallback() {
     carritoState.subscribe(this._onCarritoChange); // Nos suscribimos a cambios
+    carritoState.subscribe(this._onOrdenChange); // Nos suscribimos a cambios
     this.render();
   }
 
@@ -127,6 +129,7 @@ class NavBar extends HTMLElement {
   }
 
   pepidoCLick() {
+    this.buttonCerrar();
     this.dispatchEvent(
       new CustomEvent("pepidoCLick", {
         composed: true,
@@ -188,6 +191,22 @@ class NavBar extends HTMLElement {
       console.warn("No se encontró el carrito.");
     }
   }
+  renderCarrito() {
+
+  }
+
+  renderCarrito() {
+    const boton = this._root.querySelector("#boton-menu-cart");
+    if (!boton) return;
+
+    boton.classList.add("ondas");
+
+    // Remueve la clase luego de 800 ms para permitir futuras animaciones
+    setTimeout(() => {
+      boton.classList.remove("ondas");
+    }, 1000);
+  }
+
 }
 
 customElements.define("nav-bar", NavBar);

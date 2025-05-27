@@ -1,5 +1,3 @@
-
-
 * {
   margin: 0;
   padding: 0;
@@ -16,6 +14,7 @@
   width: 36px;
   border: none;
 }
+
 #menu-button-cerrar img {
   width: 36px;
 }
@@ -42,18 +41,19 @@
   display: grid;
   grid-template-columns: 4fr 1fr;
   position: relative;
-
   align-items: center;
+  justify-content: center;
   min-height: 40px;
   background-color: var(--color--principal);
 }
+
 .list-container #boton-menu-cart {
 
   background: none;
   border: none;
-  height: 50px;
-  width: 50px;
-  padding: 0 10px;
+  border-radius: 50%;
+  height: 60px;
+  width: 60px;
 }
 
 .list-container #boton-menu-cart img {
@@ -61,10 +61,11 @@
   height: 36px;
 }
 
-.list-container #cartLi  .cartCardContainer {
+.list-container #cartLi .cartCardContainer {
   position: relative;
 }
-.list-container #cartLi  .cartCardContainer #numberCartCard {
+
+.list-container #cartLi .cartCardContainer #numberCartCard {
   position: absolute;
   width: 16px;
   height: 16px;
@@ -73,16 +74,17 @@
   border-radius: 50%;
   font-size: 10px;
   color: var(--color--principal);
-  transform: translate(50%);
+  transform: translate(-35%);
   display: grid;
   place-content: center;
- }
- .list-container #cartLi .cartCardContainer #number {
+}
+
+.list-container #cartLi .cartCardContainer #number {
   text-align: center;
   color: var(--color--principal);
- }
+}
 
- .list-container #cartLi  #cartCard {
+.list-container #cartLi #cartCard {
   display: flex;
   justify-content: center;
   visibility: hidden;
@@ -90,14 +92,10 @@
   transition: opacity 0.8s ease;
 }
 
-.list-container #cartLi  :hover #cartCard{
+.list-container #cartLi :hover #cartCard {
   visibility: visible;
   opacity: 1;
 }
-
-
-
-
 
 #menu-lista {
   display: grid;
@@ -114,13 +112,33 @@
   height: 100%;
   font-size: var(--fuente-texto);
   text-align: center;
-  transition: background 800ms ease,transform 800ms ease;
+  transition: background 800ms ease, transform 800ms ease;
 }
 
-  #menu-lista li:hover {
-    background: var(--color--secundario);
-    transform: scale(1.25);
+#menu-lista li:hover {
+  background: var(--color--secundario);
+  transform: scale(1.25);
 }
+
+
+@keyframes ondas {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.5);
+  }
+
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+}
+
+.ondas {
+  animation: ondas 800ms ease-out;
+}
+
 
 
 
@@ -137,6 +155,10 @@
     height: 80px;
     align-items: start;
     transition: width 0.8s ease, height 0.8s ease, background-color 1.8s ease;
+  }
+
+  .list-container #boton-menu-cart {
+    transform: translateY(-25%);
   }
 
   #menu-lista {
@@ -178,6 +200,7 @@
     opacity: 0;
     visibility: hidden;
   }
+
   .list-container #cartLi {
     position: absolute;
     right: 0;
@@ -216,11 +239,11 @@
     height: 100%;
     font-size: var(--fuente-texto);
     text-align: center;
-    transition: background 800ms ease,transform 800ms ease;
+    transition: background 800ms ease, transform 800ms ease;
   }
 
-  
-  
+
+
   /* #menu-lista li:not(:last-child) {
     transition: transform 0.8s ease;
   }

@@ -23,7 +23,7 @@ describe("NavBar", () => {
     it("connectedCallback debe suscribirse al carritoState al conectarse", () => {
         const spySubscribe = sinon.spy(carritoState, "subscribe");
         navBar.connectedCallback();
-        assert.isTrue(spySubscribe.calledOnce);
+        assert.isTrue(spySubscribe.calledTwice);
     });
 
 

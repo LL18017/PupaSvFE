@@ -9,6 +9,7 @@
   --fuente-titulo: 40px;
   --fuente-sub-titulo: 30px;
 }
+
 * {
   margin: 0;
   padding: 0;
@@ -21,17 +22,40 @@ body {
   display: grid;
   color: var(--color--claro);
 }
+
+#DescargarApp {
+  position: fixed;
+  bottom: 10%;
+  left: 2%;
+  z-index: 1000;
+  /* opcional: asegúrate que esté por encima de otros elementos */
+}
+
+#pedidosCLiente {
+  margin-top: 120px;
+}
+
+#nav-bar {
+  position: fixed;
+  width: 100%;
+  top: 0;
+  z-index: 100;
+}
+
+
 /* se eliminara */
 .botonProbarCard {
   position: relative;
   width: 200px;
 }
+
 #productos-container {
   display: none;
 }
 
 #main-tittle {
   color: var(--color--oscuro);
+
   h1 {
     text-align: center;
   }
@@ -43,19 +67,23 @@ body {
 
 #footer {
   align-self: self-end;
+
   .footer-container {
     background-color: var(--color--principal);
     display: flex;
     justify-content: space-between;
     align-items: center;
     place-content: center;
+
     .redes {
       padding: 12px;
+
       img {
         margin: 0 12px;
         width: 32px;
         transition: transform 0.8s ease;
       }
+
       img:hover {
         transform: scale(1.25);
         color: var(--color--secundario);
@@ -72,10 +100,9 @@ body {
   width: 56px;
   height: 36px;
 }
+
 #button-cart img {
   width: 56px;
 }
 
-#ZonaPago {
-  /* display: none; */
-}
+@media (max-width: 720px) {}

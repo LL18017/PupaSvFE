@@ -5,7 +5,7 @@ import { carritoState } from "../../src/boundary/cart/carritoState.js";
 
 import "../../src/boundary/cart/carritoCompras.js";
 
-describe("CarriroCompras", () => {
+describe("CarritoCompras", () => {
     let carrito;
     let shadowRoot;
 

@@ -1,0 +1,43 @@
+#idDescargaApp {
+    background-color: var(--color--principal);
+    width: 120px;
+    border-radius: 16px;
+    color: var(--color-claro);
+    font-size: var(--fuente-texto);
+    padding: 8px;
+    border: none;
+    transition: background 800ms ease, transform 800ms ease;
+
+}
+
+#idDescargaApp:hover {
+    background-color: var(--color--secundario);
+    transform: scale(1.15);
+
+}
+
+/* Estado deshabilitado */
+#idDescargaApp:disabled {
+    background-color: #cccccc;
+    /* gris */
+    color: #666666;
+    cursor: not-allowed;
+}
+
+/* Evitar hover cuando está deshabilitado */
+#idDescargaApp:disabled:hover {
+    background-color: #cccccc;
+    transform: scale(1);
+}
+
+@media (max-width: 721px) {
+    #idDescargaApp {
+        background-color: var(--color--secundario);
+    }
+
+    #idDescargaApp:hover {
+        background-color: var(--color--secundario);
+        transform: scale(1.15);
+
+    }
+}

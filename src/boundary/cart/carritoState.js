@@ -87,6 +87,10 @@ class CarritoState {
   getCantidadTotal() {
     return this.CantidadTotal;
   }
+
+  setCantidadTotal(cantidad) {
+    this.CantidadTotal = cantidad;
+  }
   getCombos() {
     return this.combos;
   }

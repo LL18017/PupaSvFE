@@ -1,65 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PupaSv</title>
-    <link rel="stylesheet" href="./css/main.css" />
-    <link rel="manifest" href="manifest.json">
-  </head>
-  <body>
-    <nav-bar id="nav-bar"></nav-bar>
 
-    <producto-plantilla id="productos-container"></producto-plantilla>
-    <zona-pagos id="ZonaPago"></zona-pagos>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PupaSv</title>
+  <link rel="stylesheet" href="./css/main.css" />
+  <link rel="manifest" href="manifest.json">
+</head>
 
-    <button class="botonProbarCard" id="botonProbarproducto1">
-      agregar producto para probar productos1</button
-    >"
-    <button class="botonProbarCard" id="botonProbarproducto2">
-      agregar producto para probar productos2</button
-    >"
-    <button class="botonProbarCard" id="botonProbarcombo">
-      agregar producto para combos</button
-    >"
+<body>
+  <instalador-app id="DescargarApp"></instalador-app>
+  <nav-bar id="nav-bar"></nav-bar>
 
-    <header id="main-tittle">
-      <h1>PupaSv</h1>
-    </header>
-    <section id="info">
-      <div class="logo-empresa">
+  <producto-plantilla id="productos-container"></producto-plantilla>
+  <zona-pagos id="ZonaPago"></zona-pagos>
+
+  <!-- <button class="botonProbarCard" id="botonDescargarApp">
+    agregar producto para probar productos1</button> -->
+  <header id="main-tittle">
+    <h1>PupaSv</h1>
+  </header>
+  <pedidos-cliente id="pedidosCLiente"></pedidos-cliente>
+  <section id="info">
+    <div class="logo-empresa">
+      <p>
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Maiores
+        blanditiis explicabo at dolor in veniam iure eaque illum, corrupti nam
+        fuga a, iste accusantium. Unde eligendi reprehenderit molestiae et
+        impedit laudantium, minus explicabo alias nam voluptatum obcaecati
+        cumque ut in.
+      </p>
+    </div>
+    <div class="redes-sociales">redes sociales</div>
+  </section>
+
+  <footer id="footer">
+    <div class="footer-container">
+      <div class="direcion">
         <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Maiores
-          blanditiis explicabo at dolor in veniam iure eaque illum, corrupti nam
-          fuga a, iste accusantium. Unde eligendi reprehenderit molestiae et
-          impedit laudantium, minus explicabo alias nam voluptatum obcaecati
-          cumque ut in.
+          Calle 5ª Avenida Sur, #123, Colonia El Palmar, Santa Ana, El
+          Salvador.
         </p>
       </div>
-      <div class="redes-sociales">redes sociales</div>
-    </section>
-
-    <footer id="footer">
-      <div class="footer-container">
-        <div class="direcion">
-          <p>
-            Calle 5ª Avenida Sur, #123, Colonia El Palmar, Santa Ana, El
-            Salvador.
-          </p>
-        </div>
-        <div class="redes">
-          <a href=""><img src="./css/assets/facebook-blancoi.png" alt="" /></a>
-          <a href=""><img src="./css/assets/instagram-blanco.png" alt="" /></a>
-          <a href=""><img src="./css/assets/whatapp-blanco.png" alt="" /></a>
-          <a href=""><img src="./css/assets/telefono-BLANCO.png" alt="" /></a>
-        </div>
+      <div class="redes">
+        <a href=""><img src="./css/assets/facebook-blancoi.png" alt="" /></a>
+        <a href=""><img src="./css/assets/instagram-blanco.png" alt="" /></a>
+        <a href=""><img src="./css/assets/whatapp-blanco.png" alt="" /></a>
+        <a href=""><img src="./css/assets/telefono-BLANCO.png" alt="" /></a>
       </div>
-    </footer>
+    </div>
+  </footer>
+  <app-controller style="display: none;"></app-controller>
 
-    <script src="./js/main.js" type="module"></script>
-    <script type="module" src="./boundary/navBar/navbar.js"></script>
-    <script type="module" src="./boundary/productos/Producto.js"></script>
-    <script type="module" src="./boundary/ZonaPago/ZonaPago.js"></script>
-    <script type="module" src="./boundary/cart/carritoCompras.js"></script>
-  </body>
+  <script src="./js/AppController.js" type="module"></script>
+  <script type="module" src="./boundary/navBar/navbar.js"></script>
+  <script type="module" src="./boundary/pedidos/Pedidos.js"></script>
+  <script type="module" src="./boundary/productos/Producto.js"></script>
+  <script type="module" src="./boundary/ZonaPago/ZonaPago.js"></script>
+  <script type="module" src="./boundary/cart/carritoCompras.js"></script>
+  <script type="module" src="./boundary/instalador/instalador.js"></script>
+</body>
+
 </html>

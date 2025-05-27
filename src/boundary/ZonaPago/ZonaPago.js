@@ -96,8 +96,8 @@ class ZonaPago extends HTMLElement {
       >
         <option value="">Seleccione una sucursal</option>
         ${this.sucursales.map(
-          (s) => html`<option value="${s.id_sucursal}">${s.nombre}</option>`
-        )}
+      (s) => html`<option value="${s.id_sucursal}">${s.nombre}</option>`
+    )}
       </select>
     `;
   }
@@ -140,8 +140,8 @@ class ZonaPago extends HTMLElement {
 
     return html`
       ${this.pagosSeleccionados.map((pago, index) =>
-        this.renderPagoIndividual(pago, index)
-      )}
+      this.renderPagoIndividual(pago, index)
+    )}
       <button type="button" @click=${() => this.agregarPago()}>
         Agregar pago
       </button>
@@ -160,8 +160,8 @@ class ZonaPago extends HTMLElement {
       >
         <option value="">Seleccione una forma de pago</option>
         ${this.formaPago.map(
-          (f) => html`<option value="${f.id_forma}">${f.nombre}</option>`
-        )}
+      (f) => html`<option value="${f.id_forma}">${f.nombre}</option>`
+    )}
       </select>
       ${this.renderDatosPagoAdicionales(pago.forma)}
       <label>Cantidad:</label>
@@ -209,8 +209,8 @@ class ZonaPago extends HTMLElement {
       >
         <option value="">Seleccione una forma de pago</option>
         ${this.formaPago.map(
-          (f) => html`<option value="${f.id_forma}">${f.nombre}</option>`
-        )}
+      (f) => html`<option value="${f.id_forma}">${f.nombre}</option>`
+    )}
       </select>
     `;
   }
@@ -258,6 +258,7 @@ class ZonaPago extends HTMLElement {
       });
 
       alert("PAGO EXISTOSO");
+      this.guardarOrdenLocal(orden)
       this.limpiar();
     } catch (error) {
       console.error("Error al procesar el pago:", error);
@@ -468,6 +469,33 @@ class ZonaPago extends HTMLElement {
 
     this.plantilla();
   }
+  guardarOrdenLocal(orden) {
+    const ordenNueva = {
+      idOrden: orden.idOrden,
+      productos: carritoState.getProductos(),
+      combos: carritoState.getCombos(),
+      total: this.calcularTotal()
+    };
+
+    const ordenesGuardadas = localStorage.getItem("ordenes_pupa_tpi");
+    let listaOrdenes = [];
+
+    if (ordenesGuardadas) {
+      try {
+        listaOrdenes = JSON.parse(ordenesGuardadas);
+      } catch (error) {
+        console.error("Error al parsear las órdenes guardadas:", error);
+        listaOrdenes = [];
+      }
+    }
+
+    // Agregar la nueva orden
+    listaOrdenes.push(ordenNueva);
+
+    // Guardar en localStorage
+    localStorage.setItem("ordenes_pupa_tpi", JSON.stringify(listaOrdenes));
+  }
+
 }
 
 customElements.define("zona-pagos", ZonaPago);
