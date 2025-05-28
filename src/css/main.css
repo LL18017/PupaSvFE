@@ -14,13 +14,24 @@
   padding: 0;
   box-sizing: border-box;
 }
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
 
 body {
+  background-image: url('./assets/fondo.jpg');
+  display: flex;
+  flex-direction: column;
   height: 100vh;
-  background-color: var(--color--fondo);
-  display: grid;
   color: var(--color--claro);
 }
+main-inicio, #main-inicio {
+  flex: 1;
+}
+
+
 /* se eliminara */
 .botonProbarCard {
   position: relative;
@@ -28,40 +39,6 @@ body {
 }
 #productos-container {
   display: none;
-}
-
-#main-tittle {
-  color: var(--color--oscuro);
-  h1 {
-    text-align: center;
-  }
-}
-
-#info {
-  color: var(--color--oscuro);
-}
-
-#footer {
-  align-self: self-end;
-  .footer-container {
-    background-color: var(--color--principal);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    place-content: center;
-    .redes {
-      padding: 12px;
-      img {
-        margin: 0 12px;
-        width: 32px;
-        transition: transform 0.8s ease;
-      }
-      img:hover {
-        transform: scale(1.25);
-        color: var(--color--secundario);
-      }
-    }
-  }
 }
 
 #button-cart {

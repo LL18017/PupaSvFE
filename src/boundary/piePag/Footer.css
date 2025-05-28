@@ -1,0 +1,40 @@
+#footer {
+  background-color: var(--color--principal);
+  color: white;
+  padding: 1rem 0;
+}
+
+.footer-container {
+  background-color: var(--color--principal);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  place-content: center;
+  flex-wrap: wrap;
+  padding: 0 1rem;
+}
+
+.footer-container .redes {
+  padding: 12px;
+}
+
+.footer-container .redes img {
+  margin: 0 12px;
+  width: 32px;
+  transition: transform 0.8s ease;
+}
+
+.footer-container .redes img:hover {
+  transform: scale(1.25);
+  color: var(--color--secundario);
+}
+@media (max-width: 600px) {
+  .footer-container {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .redes {
+    margin-top: 1rem;
+  }
+}

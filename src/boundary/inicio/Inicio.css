@@ -1,0 +1,45 @@
+#inicio {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* background: url('../../assets/fondo.jpg') no-repeat center center fixed; */
+    background-size: cover;
+    padding: 2rem;
+    text-align: center;
+  }
+  
+  #main-tittle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+  
+  .logo-principal {
+    width: 400px;
+    height: auto;
+    margin-top: 2rem;
+
+  }
+  
+  #info {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    text-align: center;
+  }
+  
+  .logo-empresa p {
+    font-weight: bold;
+    font-size: 1.8rem;
+    max-width: 1000px;
+    margin: 0 auto;
+    line-height: 1.2;
+    background-color: rgba(0, 0, 0, 0.6); /* Fondo oscuro semitransparente */
+    color: white;
+    padding: 1rem;
+    border-radius: 12px;
+  }
+  
