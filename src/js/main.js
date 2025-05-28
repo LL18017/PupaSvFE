@@ -77,9 +77,7 @@ class AppController {
 
     productosContainer.addEventListener("productoSeleccionado", (e) => {
        console.log(`Producto seleccionado: ${e.detail.nombre}, Precio: ${e.detail.precio}`);
-      // Llama a la función de carritoState para agregar el producto
       carritoState.agregarProducto(e.detail);
-      // Opcional: Actualizar algún indicador visual en la barra de navegación si tienes uno
       if (this.navBar && typeof this.navBar.actualizarCardCart === 'function') {this.navBar.actualizarCardCart();
       }
     });
