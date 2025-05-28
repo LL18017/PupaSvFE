@@ -49,7 +49,7 @@ class ZonaPago extends HTMLElement {
   plantilla() {
     return html`
       <link rel="stylesheet" href="./boundary/ZonaPago/ZonaPago.css" />
-      <h3>Artículos</h3>
+      <h3>Compras</h3>
       ${this.cargando ? this.renderSpiner() : ""}
       <div class="container">
         <carrito-compras cssUtilizar="ZonaPago"></carrito-compras>
@@ -464,6 +464,7 @@ class ZonaPago extends HTMLElement {
     this.pagosSeleccionados = [];
     carritoState.setCombos([]);
     carritoState.setProductos([]);
+    carritoState.setCantidadTotal(0)
     this.sucursalSeleccionada = [];
     carritoState._notify();
 

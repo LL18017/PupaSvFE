@@ -1,7 +1,7 @@
 :root {
   --color--principal: #c00000;
   --color--secundario: #810909;
-  --color--fondo: #f5f5f5;
+  --color--fondo: #fffcffcd;
   --color--oscuro: #020202;
   --color--claro: #fffcff;
   --fuente-texto: 20px;
@@ -41,13 +41,13 @@ body {
 
 #DescargarApp {
   position: fixed;
-  bottom: 10%;
+  bottom: 15%;
   left: 2%;
   z-index: 1000;
 }
 
 #pedidosCLiente {
-  margin-top: 120px;
+  /* margin-top: 120px; */
 }
 
 #nav-bar {
@@ -55,6 +55,11 @@ body {
   width: 100%;
   top: 0;
   z-index: 100;
+
+}
+
+#ZonaPago {
+  margin-top: 80px;
 
 }
 
