@@ -8,20 +8,18 @@ class AppController extends HTMLElement {
   }
 
   connectedCallback() {
-    this.mainTittle = document.getElementById("main-tittle");
-    this.navBar = document.getElementById("nav-bar");
     this.productosContainer = document.getElementById("productos-container");
-    this.info = document.getElementById("info");
-    this.footer = document.getElementById("footer");
+    this.footer = document.getElementById("footerComponent");
     this.ZonaPago = document.getElementById("ZonaPago");
     this.cartCard = document.getElementById("cartCard");
     this.pedidosCLiente = document.getElementById("pedidosCLiente");
+    this.navBar = document.getElementById("nav-bar");
+    this.main = document.getElementById("main-inicio");
 
     this.listaComponentes = [
-      this.mainTittle,
+      this.main,
       this.navBar,
       this.productosContainer,
-      this.info,
       this.footer,
       this.ZonaPago,
       this.pedidosCLiente
@@ -39,11 +37,11 @@ class AppController extends HTMLElement {
   iniciarEventos() {
     this.ZonaPago.style.display = "none";
     this.pedidosCLiente.style.display = "none";
-    const { navBar, productosContainer, mainTittle, info, footer } = this;
+    const { navBar, productosContainer, main, footer } = this;
 
     document.addEventListener("inicioClick", () => {
       this.desaparecerElementos(this.listaComponentes, [
-        this.navBar, this.info, this.mainTittle, this.footer,
+        this.navBar, this.main, this.footer,
       ]);
     });
 
@@ -55,6 +53,7 @@ class AppController extends HTMLElement {
     });
 
     navBar.addEventListener("contactoClick", () => {
+      const footer = document.getElementById("footerComponent");
       if (footer) {
         footer.scrollIntoView({ behavior: "smooth" });
       } else {
@@ -99,6 +98,8 @@ class AppController extends HTMLElement {
       }
     });
     listaExcepciones.forEach((el) => {
+      console.log(el);
+
       el.style.display = "block";
     });
   }

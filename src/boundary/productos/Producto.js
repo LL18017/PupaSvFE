@@ -254,7 +254,6 @@ class Producto extends HTMLElement {
   eventoEnter() {
     document.addEventListener("keydown", (event) => {
       if (event.key === "Enter") {
-        console.log("Se presionó Enter");
         this.aplicarFiltros(); // Llama al método unificado para aplicar ambos filtros
       }
     });

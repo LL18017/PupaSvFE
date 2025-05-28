@@ -16,11 +16,27 @@
   box-sizing: border-box;
 }
 
+html,
 body {
-  height: 100vh;
-  background-color: var(--color--fondo);
-  display: grid;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-image: url('./assets/fondo.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
   color: var(--color--claro);
+}
+
+#footerComponent {
+  margin-top: auto;
 }
 
 #DescargarApp {
@@ -28,7 +44,6 @@ body {
   bottom: 10%;
   left: 2%;
   z-index: 1000;
-  /* opcional: asegúrate que esté por encima de otros elementos */
 }
 
 #pedidosCLiente {
@@ -40,56 +55,12 @@ body {
   width: 100%;
   top: 0;
   z-index: 100;
+
 }
 
-
-/* se eliminara */
-.botonProbarCard {
-  position: relative;
-  width: 200px;
-}
 
 #productos-container {
   display: none;
-}
-
-#main-tittle {
-  color: var(--color--oscuro);
-
-  h1 {
-    text-align: center;
-  }
-}
-
-#info {
-  color: var(--color--oscuro);
-}
-
-#footer {
-  align-self: self-end;
-
-  .footer-container {
-    background-color: var(--color--principal);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    place-content: center;
-
-    .redes {
-      padding: 12px;
-
-      img {
-        margin: 0 12px;
-        width: 32px;
-        transition: transform 0.8s ease;
-      }
-
-      img:hover {
-        transform: scale(1.25);
-        color: var(--color--secundario);
-      }
-    }
-  }
 }
 
 #button-cart {
@@ -104,5 +75,3 @@ body {
 #button-cart img {
   width: 56px;
 }
-
-@media (max-width: 720px) {}

@@ -15,51 +15,21 @@
 
   <producto-plantilla id="productos-container"></producto-plantilla>
   <zona-pagos id="ZonaPago"></zona-pagos>
-
-  <!-- <button class="botonProbarCard" id="botonDescargarApp">
-    agregar producto para probar productos1</button> -->
-  <header id="main-tittle">
-    <h1>PupaSv</h1>
-  </header>
+  <main-inicio id="main-inicio"></main-inicio>
   <pedidos-cliente id="pedidosCLiente"></pedidos-cliente>
-  <section id="info">
-    <div class="logo-empresa">
-      <p>
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Maiores
-        blanditiis explicabo at dolor in veniam iure eaque illum, corrupti nam
-        fuga a, iste accusantium. Unde eligendi reprehenderit molestiae et
-        impedit laudantium, minus explicabo alias nam voluptatum obcaecati
-        cumque ut in.
-      </p>
-    </div>
-    <div class="redes-sociales">redes sociales</div>
-  </section>
 
-  <footer id="footer">
-    <div class="footer-container">
-      <div class="direcion">
-        <p>
-          Calle 5ª Avenida Sur, #123, Colonia El Palmar, Santa Ana, El
-          Salvador.
-        </p>
-      </div>
-      <div class="redes">
-        <a href=""><img src="./css/assets/facebook-blancoi.png" alt="" /></a>
-        <a href=""><img src="./css/assets/instagram-blanco.png" alt="" /></a>
-        <a href=""><img src="./css/assets/whatapp-blanco.png" alt="" /></a>
-        <a href=""><img src="./css/assets/telefono-BLANCO.png" alt="" /></a>
-      </div>
-    </div>
-  </footer>
+  <footer-component id="footerComponent"></footer-component>
   <app-controller style="display: none;"></app-controller>
 
-  <script src="./js/AppController.js" type="module"></script>
-  <script type="module" src="./boundary/navBar/navbar.js"></script>
+  <script type="module" src="./boundary/inicio/inicio.js"></script>
+  <script type="module" src="./boundary/piePag/footer.js"></script>
   <script type="module" src="./boundary/pedidos/Pedidos.js"></script>
   <script type="module" src="./boundary/productos/Producto.js"></script>
   <script type="module" src="./boundary/ZonaPago/ZonaPago.js"></script>
   <script type="module" src="./boundary/cart/carritoCompras.js"></script>
   <script type="module" src="./boundary/instalador/instalador.js"></script>
+  <script type="module" src="./boundary/navBar/navbar.js"></script>
+  <script src="./js/AppController.js" type="module"></script>
 </body>
 
 </html>
