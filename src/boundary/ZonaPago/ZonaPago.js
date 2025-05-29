@@ -34,6 +34,7 @@ class ZonaPago extends HTMLElement {
   }
   connectedCallback() {
     carritoState.subscribe(this._onCarritoChange); // Nos suscribimos a cambios
+    this.agregarEventoOrdenOffLine();
     this.render();
   }
 
@@ -232,40 +233,44 @@ class ZonaPago extends HTMLElement {
       false
     );
 
-    try {
-      this.cargando = true;
-      this.render(); // muestra el spinner
-      await new Promise((r) =>
-        setTimeout(() => {
-          r();
-        }, 1000)
-      ); // Esperar 1 segundos
+    if (navigator.onLine) {
+      try {
+        this.cargando = true;
+        this.render(); // muestra el spinner
+        await new Promise((r) =>
+          setTimeout(() => {
+            r();
+          }, 500)
+        ); // Esperar 1 segundos
 
-      orden = await this.crearOrden(orden);
+        orden = await this.crearOrden(orden);
 
-      await this.crearOrdenDetalles(orden.idOrden);
+        await this.crearOrdenDetalles(orden.idOrden);
 
-      // creacion de pagos
-      this.pagosSeleccionados.forEach(async (p) => {
-        let pago = new Pago(
-          null,
-          { idOrden: orden.idOrden },
-          new Date().toISOString(),
-          p.forma,
-          null
-        );
-        await this.crearPago(pago, p.cantidad);
-      });
+        // creacion de pagos
+        this.pagosSeleccionados.forEach(async (p) => {
+          let pago = new Pago(
+            null,
+            { idOrden: orden.idOrden },
+            new Date().toISOString(),
+            p.forma,
+            null
+          );
+          await this.crearPago(pago, p.cantidad);
+        });
 
-      alert("PAGO EXISTOSO");
-      this.guardarOrdenLocal(orden)
-      this.limpiar();
-    } catch (error) {
-      console.error("Error al procesar el pago:", error);
-    } finally {
-      this.cargando = false;
-      this.render(); // oculta el spinner
+        alert("PAGO EXISTOSO");
+        this.guardarOrdenLocal(orden)
+      } catch (error) {
+        console.error("Error al procesar el pago:", error);
+      } finally {
+        this.cargando = false;
+        this.render(); // oculta el spinner
+      }
+    } else {
+      this.guardarOrdenOffline(orden, this.pagosSeleccionados, carritoState.getProductos(), carritoState.getCombos());
     }
+    this.limpiar();
   }
 
   // Crea una nueva orden
@@ -329,6 +334,47 @@ class ZonaPago extends HTMLElement {
       alert("error al crear detalles de la orden: " + error);
     }
   }
+
+  guardarOrdenOffline(orden, pagosSeleccionados, productosList, combosList) {
+    const ordenesPendientes = JSON.parse(localStorage.getItem('ordenesPendientes')) || [];
+    const OrdenTemporal = {
+      idTemporal: crypto.randomUUID(),
+      orden: orden,
+      pagosSeleccionados: pagosSeleccionados,
+      productos: productosList,
+      combos: combosList,
+      total: this.calcularTotal()
+    }
+    ordenesPendientes.push(OrdenTemporal);
+    localStorage.setItem('ordenesPendientes', JSON.stringify(ordenesPendientes));
+  }
+  agregarEventoOrdenOffLine() {
+    window.addEventListener('online', async () => {
+      const ordenesPendientes = JSON.parse(localStorage.getItem('ordenesPendientes')) || [];
+      const ordenesFallidas = [];
+
+      for (const ordenPendiente of ordenesPendientes) {
+        try {
+          this.pagosSeleccionados = ordenPendiente.pagosSeleccionados;
+          carritoState.setCombos(ordenPendiente.combos);
+          carritoState.setProductos(ordenPendiente.productos);
+
+          await this.buttonPagar();
+          // si llega aquí, fue exitosa
+        } catch (err) {
+          console.error('Error al sincronizar una orden:', err);
+          ordenesFallidas.push(ordenPendiente); // conservar solo las que fallaron
+        }
+      }
+
+      if (ordenesFallidas.length > 0) {
+        localStorage.setItem('ordenesPendientes', JSON.stringify(ordenesFallidas));
+      } else {
+        localStorage.removeItem('ordenesPendientes');
+      }
+    });
+  }
+
 
   //retorna datos para targetas o cuenta
   renderDatosPagoAdicionales(forma) {

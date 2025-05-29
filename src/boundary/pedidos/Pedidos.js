@@ -23,8 +23,10 @@ class Pedidos extends HTMLElement {
       return;
     }
 
+    let ordenesPendientes = JSON.parse(localStorage.getItem('ordenesPendientes')) || [];
     const plantilla = html`
           ${link}
+          <h1>ordenes realizadas</h1>
           <div class="ordenes">
             ${ordenesGuardadas.map(o => html`
               <div class="orden">
@@ -33,8 +35,23 @@ class Pedidos extends HTMLElement {
                 </div>
                 ${this.renderDetalle(o.productos, o.combos)}
                 <div class="contenedorTotalButton">
+                  <p><strong>Total:</strong> $${o.total}</p>
+                  <button @click=${() => this.btnPedir(o)}>volver a pedir</button>
+                </div>
+              </div>
+              `)}
+            </div>
+            <h1 style=display:${ordenesPendientes.length == 0 ? 'none' : 'block'}>ordenes Pendientes</h1>
+            <div class="ordenes" style=display:${ordenesPendientes.length == 0 ? 'none' : 'grid'}>
+            ${ordenesPendientes.map(o => html`
+              <div class="orden">
+                <div class="cabecera-orden">
+                  <p><strong>Número de orden:</strong> ${o.idTemporal}</p>
+                </div>
+                ${this.renderDetalle(o.productos, o.combos)}
+                <div class="contenedorTotalButton">
                     <p><strong>Total:</strong> $${o.total}</p>
-                    <button @click=${() => this.btnPedir(o)}>volver a pedir</button>
+                    <button @click=${() => this.btnCancelarOrdenPendiente(o.idTemporal)}>cancelar</button>
                 </div>
               </div>
             `)}
@@ -111,6 +128,14 @@ class Pedidos extends HTMLElement {
     carritoState.setCantidadTotal(total);
     carritoState._notify()
   }
+  btnCancelarOrdenPendiente(idTemporal) {
+    const ordenesPendientes = JSON.parse(localStorage.getItem('ordenesPendientes')) || [];
+    const nuevasOrdenes = ordenesPendientes.filter(o => o.idTemporal !== idTemporal);
+    localStorage.setItem('ordenesPendientes', JSON.stringify(nuevasOrdenes));
+    this.render()
+  }
+
+
 
 
 }
