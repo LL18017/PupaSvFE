@@ -190,7 +190,7 @@ class Producto extends HTMLElement {
         <div class="info">
           <h3 class="info">producto: ${producto.nombre}</h3>
           <p class="info">
-            precio: $${producto.productoPrecioList[0].precioSugerido}
+            precio: $${producto.productoPrecioList[0].precioSugerido.toFixed(2)}
           </p>
         </div>
         <button
@@ -212,7 +212,7 @@ class Producto extends HTMLElement {
         <div class="info">
           <h3 class="info">combo: ${combo.nombre}</h3>
           <p class="info">descripcion: ${combo.descripcion}</p>
-          <p class="info">precio: ${combo.precio}</p>
+          <p class="info">precio: $${combo.precio.toFixed(2)}</p>
         </div>
         <button @click=${(e) => this.eventAgregarCombo(combo)} id="btnAgregar">
           seleccionar

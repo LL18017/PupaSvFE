@@ -5,7 +5,7 @@ class ComboAccess extends dataAccess {
     super("combo"); // Pasa el valor específico para la subclase
   }
 
-  getDataPorNombre(nombre) {
+  getDataPorNombre(nombre,first,max) {
     const url = `${this.URL}/nombre/${nombre}`;
     return fetch(url)
       .then((response) => {

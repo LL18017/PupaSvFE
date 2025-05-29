@@ -205,6 +205,7 @@ describe("ZonaPagoTest", () => {
 
     const response = await pagoAccess.createData(pago);
     const location = response.headers.get('Location');
+    
     const idPago = location.split('/').pop();
 
     assert.strictEqual(idPago, '789');
