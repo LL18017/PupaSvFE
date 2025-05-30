@@ -1,5 +1,5 @@
 import assert from 'assert';
-import Orden from '../../../src/entity/Orden.js';
+import Orden from '../../src/entity/Orden.js';
 
 describe('OrdenEntity', () => {
     it('debería crear una instancia correctamente', () => {

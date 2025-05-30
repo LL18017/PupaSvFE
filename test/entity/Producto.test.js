@@ -1,5 +1,5 @@
 import assert from 'assert';
-import producto from '../../../src/entity/Producto.js'; // Asegúrate de usar la ruta correcta
+import producto from '../../src/entity/Producto.js'; // Asegúrate de usar la ruta correcta
 
 describe('Clase producto', () => {
     it('debería crear una instancia correctamente', () => {

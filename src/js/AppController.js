@@ -27,11 +27,11 @@ class AppController extends HTMLElement {
 
     this.iniciarEventos();
 
-    // if ("serviceWorker" in navigator) {
-    //   navigator.serviceWorker.register("../serviceWorker.js")
-    //     .then(() => console.log("Service worker registrado"))
-    //     .catch(e => console.warn(e));
-    // }
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("../serviceWorker.js")
+        .then(() => console.log("Service worker registrado"))
+        .catch(e => console.warn(e));
+    }
   }
 
   iniciarEventos() {

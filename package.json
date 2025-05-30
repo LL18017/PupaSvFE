@@ -8,7 +8,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "mocha --require test/unidad/configuracionesDom.js \"test/unidad/**/*.test.js\"",
+    "test": "mocha --require test/configuracionesDom.js \"test/**/*.test.js\"",
     "cobertura": "nyc --reporter=text npm run test"
   },
   "repository": {

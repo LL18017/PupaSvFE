@@ -7,10 +7,13 @@ import OrdenAccess from '../../src/control/OrdenAccess.js';
 import OrdenDetalleAccess from '../../src/control/OrdenDetalleAccess.js';
 import PagoAccess from '../../src/control/PagoAccess.js';
 import PagoDetalleAccess from '../../src/control/PagoDetalleAccess.js';
+import Orden from "../../src/entity/Orden.js";
 
 describe("ZonaPagoTest", () => {
   let ordenAccess, ordenDetalleAccess, pagoAccess, pagoDetalleAccess;
   let fetchStub;
+  let volverStub;
+  let pagarStub;
   beforeEach(() => {
     carritoState.setProductos([{ idProducto: 1, precio: 10, cantidad: 2 }]);
     carritoState.setCombos([{ idCombo: 1, precio: 5, cantidad: 2 }]);
@@ -26,7 +29,9 @@ describe("ZonaPagoTest", () => {
       { id_forma: "tDeb", nombre: "Targeta Debito" },
       { id_forma: "tCred", nombre: "Targeta Credito" },
     ];
+    
 
+    //accesos y entities
     ordenAccess = new OrdenAccess();
     ordenDetalleAccess = new OrdenDetalleAccess();
     pagoAccess = new PagoAccess();
@@ -224,9 +229,94 @@ describe("ZonaPagoTest", () => {
     assert.strictEqual(response.status, 200);
   });
 
+  it('guardarOrdenOffline debería guardar una orden temporal en localStorage',() => {
+    const idStub = sinon.stub(global.crypto, 'randomUUID').returns('id-mock');
+    const sucursalSelecionada = "sa";
+    const pagosSelecionados = [{ "forma": "cash", "cantidad": 2.3 }];
+    const productos = {
+      "productos": [
+        {
+          "idProducto": 1002,
+          "nombre": "pepsi",
+          "precio": 1.5,
+          "cantidad": 1
+        },
+        {
+          "idProducto": 1003,
+          "nombre": "pupusas",
+          "precio": 0.8,
+          "cantidad": 1
+        }
+      ]
+    };
+    const combos = [];
+    const orden = new Orden(null, "2025-05-29T23:17:26.356Z", "sa", false);
+  
+     zonaPagoInstancia.guardarOrdenOffline(
+      orden,
+      pagosSelecionados,
+      sucursalSelecionada,
+      productos,
+      combos
+    );
+  
+    const data = JSON.parse(localStorage.getItem('ordenesPendientes') || '[]'); 
+    
+    assert.strictEqual(data[0].idTemporal,"id-mock", 'id deberian ser los mismos');
+    assert.strictEqual(data[0].productos.productos.length,2, 'cantidad de productos deberia ser 2');
+    assert.strictEqual(data[0].combos.length,0, 'cantidda de combos deberia ser 0');
+    assert.strictEqual(data[0].sucursalSelecionada,"sa", 'sucursal deberia ser sa');
+  
+    // Limpieza
+    idStub.restore();
+    localStorage.clear();
+    
+  });
+
+  it('agregarEventoOrdenOffLine debería agregar un evento offline para pagar', async () => {
+    const data = [
+      {
+        idTemporal: 'id-mock',
+        orden: {
+          idOrden: null,
+          fecha: '2025-05-29T23:17:26.356Z',
+          sucursal: 'sa',
+          anulada: false
+        },
+        sucursalSelecionada: 'sa',
+        pagosSeleccionados: [{ forma: 'cash', cantidad: 2.3 }],
+        productos: { productos: [{ idProducto: 1, cantidad: 2 }] },
+        combos: [],
+        total: '30.00'
+      }
+    ];
+
+    localStorage.setItem('ordenesPendientes', JSON.stringify(data));
+
+    const pagarStub = sinon.stub(zonaPagoInstancia, 'buttonPagar').resolves();
+    const volverStub = sinon.stub(zonaPagoInstancia, 'buttonVolver');
+
+    zonaPagoInstancia.agregarEventoOrdenOffLine();
+    window.dispatchEvent(new window.Event('online'));
+
+    // Esperar a que el evento procese
+    await new Promise(resolve => setTimeout(resolve, 10));
+
+    assert(pagarStub.calledOnce, 'buttonPagar debería haberse llamado');
+    assert(volverStub.calledOnce, 'buttonVolver debería haberse llamado');
+    assert.isNull(localStorage.getItem('ordenesPendientes'), 'Debe eliminarse localStorage si todo fue exitoso');
+  });
+  
+  
 
 
 });
 
 
 
+const data=[
+  {"idTemporal":"id-mock",
+    "sucursalSelecionada":"sa",
+    "pagosSeleccionados":[{"forma":"cash","cantidad":2.3}],
+    "productos":[{"idProducto":1002,"nombre":"pepsi","precio":1.5,"url":"https://farinapizzas.com.au/wp-content/uploads/2023/05/1.25L-Pepsi.jpg","cantidad":1},{"idProducto":1003,"nombre":"pupusas","precio":0.8,"url":"https://imag.bonviveur.com/pupusas-salvadorenas.webp","cantidad":1}],
+    "combos":[],"total":"2.30"}]

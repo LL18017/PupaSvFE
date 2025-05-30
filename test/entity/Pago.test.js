@@ -1,5 +1,5 @@
 import assert from 'assert';
-import Pago from '../../../src/entity/Pago.js';
+import Pago from '../../src/entity/Pago.js';
 
 describe('PagoEntity', () => {
     it('debería crear una instancia correctamente', () => {

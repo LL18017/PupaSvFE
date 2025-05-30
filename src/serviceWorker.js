@@ -9,31 +9,42 @@ const FILES_TO_CACHE = [
     "/css/assets/menu-blanco.png",
     "/css/assets/telefono-BLANCO.png",
     "/css/assets/whatapp-blanco.png",
+    "/css/assets/imagenMobile.png",
+    "/css/assets/imagenGrande.png",
     "/boundary/cart/carritoCompras.css",
     "/boundary/cart/carritoCompras.js",
     "/boundary/cart/carritoState.js",
     "/boundary/cart/ZonaPagoCarritoCompras.css",
+    "/boundary/inicio/Inicio.css",
+    "/boundary/inicio/inicio.js",
+    "/boundary/instalador/instalador.css",
+    "/boundary/instalador/instalador.js",
     "/boundary/navBar/navBar.css",
     "/boundary/navBar/navbar.js",
+    "/boundary/pedidos/pedidos.css",
+    "/boundary/pedidos/Pedidos.js",
+    "/boundary/piePag/Footer.css",
+    "/boundary/piePag/footer.js",
     "/boundary/productos/producto.css",
     "/boundary/productos/Producto.js",
     "/boundary/ZonaPago/ZonaPago.css",
     "/boundary/ZonaPago/ZonaPago.js",
-    "/serviceWorker.js",
-    "/index.html",
-    "/js/AppController.js",
-    "/js/terceros/lit-html.js",
     "/control/ComboAccess.js",
-    "/control/productoAccess.js",
     "/control/dataAccess.js",
     "/control/OrdenAccess.js",
     "/control/OrdenDetalleAccess.js",
     "/control/PagoAccess.js",
     "/control/PagoDetalleAccess.js",
+    "/control/productoAccess.js",
     "/entity/Producto.js",
     "/entity/PagoDetalle.js",
     "/entity/Pago.js",
-    "/entity/Orden.js"
+    "/entity/Orden.js",
+    "/js/AppController.js",
+    "/js/terceros/lit-html.js",
+    "/serviceWorker.js",
+    "/index.html",
+    "/manifest.json"
 
 
 ];
@@ -67,20 +78,25 @@ self.addEventListener("activate", event => {
     return self.clients.claim();
 });
 
-// Intercepta y responde con caché o red
 self.addEventListener("fetch", event => {
+    const url = event.request.url;
+
+    // Excluir del cache las peticiones al backend
+    if (url.startsWith("http://localhost:9080/PupaSv-1.0-SNAPSHOT/v1/")) {
+        // Siempre usa la red para estas peticiones, sin cache
+        return event.respondWith(fetch(event.request));
+    }
+
+    // Resto de peticiones: seguir usando caché
     event.respondWith(
         caches.match(event.request).then(cachedResponse => {
             if (cachedResponse) {
-                // Si ya está cacheado, usarlo
                 return cachedResponse;
             }
 
             return fetch(event.request)
                 .then(networkResponse => {
-                    // Si la petición fue exitosa, cachearla y devolverla
                     return caches.open(CACHE_NAME).then(cache => {
-                        // Solo cachear si es una respuesta válida y segura
                         if (
                             event.request.method === "GET" &&
                             networkResponse.status === 200 &&
@@ -92,22 +108,18 @@ self.addEventListener("fetch", event => {
                     });
                 })
                 .catch(() => {
-                    // Si falla la red y no hay cache: devolver respuesta vacía para APIs
                     if (event.request.destination === "" && event.request.url.includes("/api/")) {
                         return new Response("[]", {
                             headers: { "Content-Type": "application/json" }
                         });
                     }
 
-                    // También podrías devolver una página offline aquí si es HTML
                     if (event.request.headers.get("accept")?.includes("text/html")) {
-                        return caches.match("/offline.html"); // Asegúrate de agregarla al cache
+                        return caches.match("/offline.html");
                     }
 
-                    // Por defecto: nada
                     return new Response(null, { status: 204 });
                 });
         })
     );
 });
-

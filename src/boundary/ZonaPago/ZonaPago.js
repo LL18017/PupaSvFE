@@ -268,7 +268,8 @@ class ZonaPago extends HTMLElement {
         this.render(); // oculta el spinner
       }
     } else {
-      this.guardarOrdenOffline(orden, this.pagosSeleccionados, carritoState.getProductos(), carritoState.getCombos());
+      this.guardarOrdenOffline(orden, this.pagosSeleccionados, this.sucursalSeleccionada, carritoState.getProductos(), carritoState.getCombos());
+      alert("no cuentas con una conexion a internet por lo cual tu orden quedara pendiente")
     }
     this.limpiar();
   }
@@ -281,6 +282,8 @@ class ZonaPago extends HTMLElement {
       const partes = locationHeader.split("/");
       const idOrden = partes[partes.length - 1];
       orden.idOrden = idOrden;
+      console.log(orden);
+
       return orden;
     } catch (error) {
       alert("error al crear orden: " + error);
@@ -335,19 +338,24 @@ class ZonaPago extends HTMLElement {
     }
   }
 
-  guardarOrdenOffline(orden, pagosSeleccionados, productosList, combosList) {
+  //guarda la data en localStorage
+  guardarOrdenOffline(orden, pagosSeleccionados, sucursalSelecionada, productosList, combosList) {
     const ordenesPendientes = JSON.parse(localStorage.getItem('ordenesPendientes')) || [];
     const OrdenTemporal = {
       idTemporal: crypto.randomUUID(),
       orden: orden,
+      sucursalSelecionada: sucursalSelecionada,
       pagosSeleccionados: pagosSeleccionados,
       productos: productosList,
       combos: combosList,
       total: this.calcularTotal()
     }
+
     ordenesPendientes.push(OrdenTemporal);
     localStorage.setItem('ordenesPendientes', JSON.stringify(ordenesPendientes));
+
   }
+  //agrega evento para ordenes offline
   agregarEventoOrdenOffLine() {
     window.addEventListener('online', async () => {
       const ordenesPendientes = JSON.parse(localStorage.getItem('ordenesPendientes')) || [];
@@ -358,9 +366,10 @@ class ZonaPago extends HTMLElement {
           this.pagosSeleccionados = ordenPendiente.pagosSeleccionados;
           carritoState.setCombos(ordenPendiente.combos);
           carritoState.setProductos(ordenPendiente.productos);
+          this.sucursalSeleccionada = ordenPendiente.sucursalSelecionada;
 
           await this.buttonPagar();
-          // si llega aquí, fue exitosa
+          this.buttonVolver()
         } catch (err) {
           console.error('Error al sincronizar una orden:', err);
           ordenesFallidas.push(ordenPendiente); // conservar solo las que fallaron

@@ -19,3 +19,7 @@ global.HTMLElement = dom.window.HTMLElement;
 global.customElements = dom.window.customElements;
 global.CustomEvent = dom.window.CustomEvent;
 global.localStorage = dom.window.localStorage;
+global.Event = dom.window.Event;
+global.crypto = {
+    randomUUID: () => 'id-mock'
+  };

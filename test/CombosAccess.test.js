@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import ComboAccess from '../../src/control/ComboAccess.js';
+import ComboAccess from '../src/control/ComboAccess.js';
 
 
 console.log('Intentando importar ComboAccess:', ComboAccess);

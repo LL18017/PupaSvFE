@@ -17,16 +17,15 @@ class Pedidos extends HTMLElement {
   render() {
     const link = html`<link rel="stylesheet" href="./boundary/pedidos/pedidos.css" />`;
     const ordenesGuardadas = JSON.parse(localStorage.getItem("ordenes_pupa_tpi")) || [];
-
-    if (ordenesGuardadas.length === 0) {
+    let ordenesPendientes = JSON.parse(localStorage.getItem('ordenesPendientes')) || [];
+    if (ordenesGuardadas.length === 0 && ordenesPendientes.length===0) {
       render(html`${link}<h3>No hay información aún</h3>`, this._root);
       return;
     }
 
-    let ordenesPendientes = JSON.parse(localStorage.getItem('ordenesPendientes')) || [];
     const plantilla = html`
           ${link}
-          <h1>ordenes realizadas</h1>
+          <h1 style>ordenes realizadas</h1>
           <div class="ordenes">
             ${ordenesGuardadas.map(o => html`
               <div class="orden">
