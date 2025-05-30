@@ -8,57 +8,105 @@ class Producto extends HTMLElement {
     this._root = this.attachShadow({ mode: "open" });
     this.productoAccess = new ProductoAccess();
     this.comboAccess = new ComboAccess();
-    this.productos = [];
-    this.combos = [];
-    this.productosOriginales = []; // Copia completa de todos los productos
-    this.combosOriginales = []; // Copia completa de todos los combos
-    this.textoBusqueda = ""; // Almacena el texto actual de la barra de búsqueda
-    this.filtroSeleccionado = "productos"; //"productos", "combos"
-    this.prodcutosMap = new Map();
+
+    // Arrays para los datos actuales y todos los datos
+    this.productos = []; 
+    this.combos = []; 
+    this.allProductosData = []; 
+    this.allCombosData = []; 
+
+    this.textoBusqueda = "";
+    this.filtroSeleccionado = "productos"; 
+    this.productosMap = new Map();
+    this.cargando = false; 
+
+    // Propiedades para la paginación
+    this.paginaActualProductos = 1;
+    this.totalPaginasProductos = 1;
+    this.paginaActualCombos = 1;
+    this.totalPaginasCombos = 1;
+    this.elementosPorPagina = 5;
+
+    this._lastProductoSearch = "";
+    this._lastComboSearch = "";
+    this._lastFiltro = "";
   }
 
   connectedCallback() {
     const link = document.createElement("link");
     link.setAttribute("rel", "stylesheet");
     link.setAttribute("href", "./boundary/productos/producto.css");
-
     this._root.appendChild(link);
 
-    this.getDataProductos().then(() => {
-      this.getDataCombo();
-    })
+    this.aplicarFiltros();
     this.eventoEnter();
   }
 
-  getDataProductos() {
-    return this.productoAccess
-      .getData()
-      .then((response) => response.json())
-      .then((productos) => {
-        this.productos = productos || [];
-        this.productosOriginales = [...this.productos]; // Guarda la copia original
-        this.productosMap = new Map(
-          this.productosOriginales.map((p) => [p.idProducto, p.nombre])
-        );
-        this.aplicarFiltros();
-      })
-      .catch((error) => {
-        console.error("Error al obtener los productos:", error);
-        this.productos = [];
-        this.productosOriginales = [];
-        this.aplicarFiltros();
-      });
+  // --- Métodos de Renderizado ---
+  renderProductos() {
+    render(this.templateProductosYCombos(), this._root);
   }
 
-  getDataCombo() {
-    return this.comboAccess
-      .getData()
-      .then((response) => response.json())
-      .then((combos) => {
-        this.combos = combos || [];
-        this.combosOriginales = this.combos.map((combo) => {
-          const nombresProductosIncluidos = [];
+  // --- Metodo para filtrado ---
+  async aplicarFiltros() {
+    this.cargando = true;
+    this.renderProductos(); // Muestra el spinner de carga inmediatamente
 
+    const textoBusquedaLower = this.textoBusqueda.toLowerCase();
+
+    try {
+      if (this.filtroSeleccionado === "productos") {
+        if (
+          this.allProductosData.length === 0 ||
+          this.textoBusqueda !== this._lastProductoSearch ||
+          this._lastFiltro !== "productos"
+        ) {
+          let response;
+          if (textoBusquedaLower === "") {
+            response = await this.productoAccess.getData().then((res) => res.json());
+          } else {
+            response = await this.productoAccess.getDataPorNombre(textoBusquedaLower);
+          }
+          this.allProductosData = Array.isArray(response) ? response : [];
+
+          this._lastProductoSearch = this.textoBusqueda;
+          this._lastFiltro = "productos";
+
+          this.productosMap = new Map(this.allProductosData.map((p) => [p.idProducto, p.nombre]));
+        }
+        this.totalPaginasProductos = Math.ceil(this.allProductosData.length / this.elementosPorPagina);
+        const inicio = (this.paginaActualProductos - 1) * this.elementosPorPagina;
+        const fin = inicio + this.elementosPorPagina;
+        this.productos = this.allProductosData.slice(inicio, fin);
+        this.combos = []; 
+      } else if (this.filtroSeleccionado === "combos") {
+        if (this.allProductosData.length === 0 || this._lastFiltro !== "productos") {
+          const productosResponse = await this.productoAccess.getData().then((res) => res.json());
+          this.allProductosData = Array.isArray(productosResponse) ? productosResponse : [];
+          this.productosMap = new Map(this.allProductosData.map((p) => [p.idProducto, p.nombre]));
+        }
+        if (
+          this.allCombosData.length === 0 ||
+          this.textoBusqueda !== this._lastComboSearch ||
+          this._lastFiltro !== "combos"
+        ) {
+          let response;
+          if (textoBusquedaLower === "") {
+            response = await this.comboAccess.getData().then((res) => res.json());
+          } else {
+            response = await this.comboAccess.getDataPorNombre(textoBusquedaLower);
+          }
+          this.allCombosData = Array.isArray(response) ? response : [];
+
+          this._lastComboSearch = this.textoBusqueda;
+          this._lastFiltro = "combos";
+        }
+        this.totalPaginasCombos = Math.ceil(this.allCombosData.length / this.elementosPorPagina);
+        const inicio = (this.paginaActualCombos - 1) * this.elementosPorPagina;
+        const fin = inicio + this.elementosPorPagina;
+
+        this.combos = this.allCombosData.map((combo) => {
+          const nombresProductosIncluidos = [];
           if (combo.comboDetalleList && Array.isArray(combo.comboDetalleList)) {
             combo.comboDetalleList.forEach((detalle) => {
               const productName = this.productosMap.get(detalle.idProducto);
@@ -68,157 +116,68 @@ class Producto extends HTMLElement {
             });
           }
           return { ...combo, nombresProductosIncluidos };
-        });
-        this.aplicarFiltros();
-      })
-      .catch((error) => {
-        console.error("Error al obtener los combos:", error);
-        this.combos = [];
-        this.combosOriginales = [];
-        this.aplicarFiltros();
-      });
-  }
+        }).slice(inicio, fin); 
 
-  // Método para renderizar la plantilla (productos y combos)
-  renderProductos() { // Este método ahora es más general, ya que renderiza ambos
-    render(this.templateProductosYCombos(), this._root);
-  }
-
-  // Método central para aplicar todos los filtros (búsqueda por nombre y por tipo)
-  aplicarFiltros() {
-    const textoBusquedaLower = this.textoBusqueda.toLowerCase();
-
-    let productosFiltradosPorBusqueda = this.productosOriginales.filter(
-      (producto) =>
-        producto &&
-        producto.nombre &&
-        producto.nombre.toLowerCase().includes(textoBusquedaLower)
-    );
-
-    let combosFiltradosPorBusqueda = this.combosOriginales.filter((combo) => {
-      if (!combo || typeof combo !== "object" || !combo.nombre) {
-        return false;
+        this.productos = [];
       }
-
-      const comboNameLower = combo.nombre.toLowerCase();
-      const comboDescriptionLower = (combo.descripcion || "").toString().toLowerCase();
-
-      // Criterio 1: El texto de búsqueda está en el nombre del combo o en su descripción
-      if (
-        comboNameLower.includes(textoBusquedaLower) ||
-        comboDescriptionLower.includes(textoBusquedaLower)
-      ) {
-        return true;
-      }
-      if (combo.nombresProductosIncluidos && Array.isArray(combo.nombresProductosIncluidos)) {
-        return combo.nombresProductosIncluidos.some(productName =>
-          productName && productName.toLowerCase().includes(textoBusquedaLower)
-        );
-      }
-
-      return false;
-    });
-
-    if (this.filtroSeleccionado === "productos") {
-      this.productos = productosFiltradosPorBusqueda;
-      this.combos = [];
-    } else if (this.filtroSeleccionado === "combos") {
+    } catch (error) {
+      console.error("Error al aplicar filtros desde el servidor:", error);
       this.productos = [];
-      this.combos = combosFiltradosPorBusqueda;
-    } else {
-      this.productos = productosFiltradosPorBusqueda;
-      this.combos = combosFiltradosPorBusqueda;
+      this.combos = [];
+      this.allProductosData = [];
+      this.allCombosData = [];
+    } finally {
+      this.cargando = false;
+      this.renderProductos();
     }
-
-    this.renderProductos();
   }
 
-  // Almacena el valor del input de búsqueda.
+  // ---Eventos ---
+
   almacenarValorBusqueda(e) {
     this.textoBusqueda = e.target.value;
-
+    this.paginaActualProductos = 1;
+    this.paginaActualCombos = 1;
+    this.allProductosData = []; 
+    this.allCombosData = []; 
+    this.aplicarFiltros(); 
   }
 
-  // Cambia el tipo de filtro seleccionado y dispara el filtro unificado
   cambiarFiltro(e) {
     this.filtroSeleccionado = e.target.value;
-    this.aplicarFiltros(); // Llama al método unificado para aplicar ambos filtros
+    this.paginaActualProductos = 1;
+    this.paginaActualCombos = 1;
+    this.allProductosData = [];
+    this.allCombosData = []; 
+    this.aplicarFiltros();
   }
 
-  // Método que retorna la plantilla combinada de productos y combos
-  templateProductosYCombos() {
-    return html`
-      <div class="busqueda-container">
-        <input
-          type="text"
-          placeholder="Buscar por nombre..."
-          .value="${this.textoBusqueda}" @input="${(e) => this.almacenarValorBusqueda(e)}"
-        />
-        <select @change="${this.cambiarFiltro.bind(this)}">
-          <option value="productos" ?selected=${this.filtroSeleccionado === "productos"}>Productos</option>
-          <option value="combos" ?selected=${this.filtroSeleccionado === "combos"}>Combos</option>
-        </select>
-      </div>
-      <section style=display:${this.filtroSeleccionado === "combos" ? "none" : "block"}>
-        <h1>Productos</h1>
-        <div class="list-producto-container">
-          ${this.productos.length === 0
-        ? html`<div class="no-disponible">No hay productos disponibles.</div>`
-        : this.productos.map((producto) => this.crearTarjetaProducto(producto))
+  paginaAnterior() {
+    if (this.filtroSeleccionado === "productos" && this.paginaActualProductos > 1) {
+      this.paginaActualProductos--;
+      this.aplicarFiltros(); 
+    } else if (this.filtroSeleccionado === "combos" && this.paginaActualCombos > 1) {
+      this.paginaActualCombos--;
+      this.aplicarFiltros(); 
+    }
+  }
+
+  paginaSiguiente() {
+    if (this.filtroSeleccionado === "productos" && this.paginaActualProductos < this.totalPaginasProductos) {
+      this.paginaActualProductos++;
+      this.aplicarFiltros();
+    } else if (this.filtroSeleccionado === "combos" && this.paginaActualCombos < this.totalPaginasCombos) {
+      this.paginaActualCombos++;
+      this.aplicarFiltros();
+    }
+  }
+
+  eventoEnter() {
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        this.aplicarFiltros();
       }
-        </div>
-      </section>
-
-      <section style=display:${this.filtroSeleccionado === "productos" ? "none" : "block"}>
-        <h1>Combos</h1>
-        <div class="list-combo-container">
-          ${this.combos.length === 0
-        ? html`<div class="no-disponible">No hay combos disponibles.</div>`
-        : this.combos.map((combo) => this.crearTarjetaCombo(combo))
-      }
-        </div>
-      </section>
-    `;
-  }
-
-  crearTarjetaProducto(producto) {
-    return html`
-      <div class="card">
-        <div class="imagenContainer">
-          <img class="imagenProducto" src="${producto.url}" />
-        </div>
-        <div class="info">
-          <h3 class="info">producto: ${producto.nombre}</h3>
-          <p class="info">
-            precio: $${producto.productoPrecioList[0].precioSugerido.toFixed(2)}
-          </p>
-        </div>
-        <button
-          @click=${(e) => this.eventAgregarProducto(producto)}
-          id="btnAgregar"
-        >
-          seleccionar
-        </button>
-      </div>
-    `;
-  }
-
-  crearTarjetaCombo(combo) {
-    return html`
-      <div class="card">
-        <div class="imagenContainer">
-          <img class="imagenProducto" src="${combo.url}" />
-        </div>
-        <div class="info">
-          <h3 class="info">combo: ${combo.nombre}</h3>
-          <p class="info">descripcion: ${combo.descripcion}</p>
-          <p class="info">precio: $${combo.precio.toFixed(2)}</p>
-        </div>
-        <button @click=${(e) => this.eventAgregarCombo(combo)} id="btnAgregar">
-          seleccionar
-        </button>
-      </div>
-    `;
+    });
   }
 
   eventAgregarProducto(producto) {
@@ -229,10 +188,9 @@ class Producto extends HTMLElement {
         precio: producto.productoPrecioList[0].precioSugerido,
         url: producto.url,
       },
-      bubbles: true,
-      composed: true,
+      bubbles: true, 
+      composed: true, 
     });
-
     this.dispatchEvent(evento);
   }
 
@@ -247,18 +205,139 @@ class Producto extends HTMLElement {
       bubbles: true,
       composed: true,
     });
-
     this.dispatchEvent(evento);
   }
 
-  eventoEnter() {
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "Enter") {
-        this.aplicarFiltros(); // Llama al método unificado para aplicar ambos filtros
-      }
-    });
+  // --- Plantillas HTML ---
+  templateProductosYCombos() {
+    const paginaActual =
+      this.filtroSeleccionado === "productos"
+        ? this.paginaActualProductos
+        : this.paginaActualCombos;
+    const totalPaginas =
+      this.filtroSeleccionado === "productos"
+        ? this.totalPaginasProductos
+        : this.totalPaginasCombos;
+
+    return html`
+      <div class="busqueda-container">
+        <input
+          type="text"
+          placeholder="Buscar por nombre..."
+          .value="${this.textoBusqueda}"
+          @keydown="${(e) => {
+        if (e.key === 'Enter') {
+          this.almacenarValorBusqueda(e);
+        }
+      }}"
+        />
+        <select @change="${this.cambiarFiltro.bind(this)}">
+          <option value="productos" ?selected=${this.filtroSeleccionado === "productos"}>
+            Productos
+          </option>
+          <option value="combos" ?selected=${this.filtroSeleccionado === "combos"}>
+            Combos
+          </option>
+        </select>
+      </div>
+      ${this.cargando ? html`<div class="spinner">Cargando...</div>` : ''}
+
+      <section style="display:${this.filtroSeleccionado === "combos" ? "none" : "block"}">
+        <h1>Productos</h1>
+        <div class="list-producto-container">
+          ${this.productos.length === 0 && !this.cargando && this.totalPaginasProductos === 0
+        ? html`<div class="no-disponible">No hay productos disponibles.</div>`
+        : this.productos.map((producto) => this.crearTarjetaProducto(producto))}
+        </div>
+        ${this.totalPaginasProductos > 1 && !this.cargando
+        ? html`
+              <div class="paginacion-container">
+                <button
+                  @click="${this.paginaAnterior.bind(this)}"
+                  ?disabled="${this.paginaActualProductos === 1}"
+                >
+                  Anterior
+                </button>
+                <span>Página ${this.paginaActualProductos} de ${this.totalPaginasProductos}</span>
+                <button
+                  @click="${this.paginaSiguiente.bind(this)}"
+                  ?disabled="${this.paginaActualProductos === this.totalPaginasProductos}"
+                >
+                  Siguiente
+                </button>
+              </div>
+            `
+        : ''}
+      </section>
+
+      <section style="display:${this.filtroSeleccionado === "productos" ? "none" : "block"}">
+        <h1>Combos</h1>
+        <div class="list-combo-container">
+          ${this.combos.length === 0 && !this.cargando && this.totalPaginasCombos === 0
+        ? html`<div class="no-disponible">No hay combos disponibles.</div>`
+        : this.combos.map((combo) => this.crearTarjetaCombo(combo))}
+        </div>
+        ${this.totalPaginasCombos > 1 && !this.cargando
+        ? html`
+              <div class="paginacion-container">
+                <button
+                  @click="${this.paginaAnterior.bind(this)}"
+                  ?disabled="${this.paginaActualCombos === 1}"
+                >
+                  Anterior
+                </button>
+                <span>Página ${this.paginaActualCombos} de ${this.totalPaginasCombos}</span>
+                <button
+                  @click="${this.paginaSiguiente.bind(this)}"
+                  ?disabled="${this.paginaActualCombos === this.totalPaginasCombos}"
+                >
+                  Siguiente
+                </button>
+              </div>
+            `
+        : ''}
+      </section>
+    `;
+  }
+
+  crearTarjetaProducto(producto) {
+    return html`
+      <div class="card">
+        <div class="imagenContainer">
+          <img class="imagenProducto" src="${producto.url}" alt="Imagen de ${producto.nombre}" />
+        </div>
+        <div class="info">
+          <h3 class="info">Producto: ${producto.nombre}</h3>
+          <p class="info">Precio: $${producto.productoPrecioList[0].precioSugerido.toFixed(2)}</p>
+        </div>
+        <button @click=${(e) => this.eventAgregarProducto(producto)} id="btnAgregar">
+          Seleccionar
+        </button>
+      </div>
+    `;
+  }
+
+  crearTarjetaCombo(combo) {
+    return html`
+      <div class="card">
+        <div class="imagenContainer">
+          <img class="imagenProducto" src="${combo.url}" alt="Imagen de ${combo.nombre}" />
+        </div>
+        <div class="info">
+          <h3 class="info">Combo: ${combo.nombre}</h3>
+          <p class="info">Descripción: ${combo.descripcion}</p>
+          <p class="info">Precio: $${combo.precio.toFixed(2)}</p>
+          ${combo.nombresProductosIncluidos && combo.nombresProductosIncluidos.length > 0
+        ? html`<p class="info productos-incluidos">
+                Incluye: ${combo.nombresProductosIncluidos.join(", ")}
+              </p>`
+        : ''}
+        </div>
+        <button @click=${(e) => this.eventAgregarCombo(combo)} id="btnAgregar">
+          Seleccionar
+        </button>
+      </div>
+    `;
   }
 }
-
 customElements.define("producto-plantilla", Producto);
-
