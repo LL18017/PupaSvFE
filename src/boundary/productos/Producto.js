@@ -48,7 +48,7 @@ class Producto extends HTMLElement {
   }
 
   // --- Metodo para filtrado ---
-  async aplicarFiltros() {
+async aplicarFiltros() {
     this.cargando = true;
     this.renderProductos(); // Muestra el spinner de carga inmediatamente
 
@@ -56,50 +56,73 @@ class Producto extends HTMLElement {
 
     try {
       if (this.filtroSeleccionado === "productos") {
-        if (
-          this.allProductosData.length === 0 ||
-          this.textoBusqueda !== this._lastProductoSearch ||
-          this._lastFiltro !== "productos"
-        ) {
-          let response;
-          if (textoBusquedaLower === "") {
-            response = await this.productoAccess.getData().then((res) => res.json());
-          } else {
-            response = await this.productoAccess.getDataPorNombre(textoBusquedaLower);
-          }
-          this.allProductosData = Array.isArray(response) ? response : [];
-
-          this._lastProductoSearch = this.textoBusqueda;
-          this._lastFiltro = "productos";
-
-          this.productosMap = new Map(this.allProductosData.map((p) => [p.idProducto, p.nombre]));
+        let responseData = []; 
+        let totalRecordsCount = 0;
+        if (this.textoBusqueda !== this._lastProductoSearch || this._lastFiltro !== "productos") {
+            this.allProductosData = []; // Asegurarse de que se recargue
+            this.paginaActualProductos = 1; // Resetear la página si la búsqueda/filtro cambia
         }
-        this.totalPaginasProductos = Math.ceil(this.allProductosData.length / this.elementosPorPagina);
-        const inicio = (this.paginaActualProductos - 1) * this.elementosPorPagina;
-        const fin = inicio + this.elementosPorPagina;
-        this.productos = this.allProductosData.slice(inicio, fin);
-        this.combos = []; 
+
+        if (textoBusquedaLower === "") {
+            const res = await this.productoAccess.getData(
+                undefined,
+                (this.paginaActualProductos - 1) * this.elementosPorPagina,
+                this.elementosPorPagina
+            );
+            const totalRecordsHeader = res.headers.get('Total-records');
+            if (totalRecordsHeader) {
+                totalRecordsCount = parseInt(totalRecordsHeader, 10);
+            }
+            responseData = await res.json();
+            this.productos = Array.isArray(responseData) ? responseData : []; 
+            this.allProductosData = []
+
+        } else {
+            if (this.allProductosData.length === 0 || this.textoBusqueda !== this._lastProductoSearch) {
+                const searchResponse = await this.productoAccess.getDataPorNombre(textoBusquedaLower);
+                this.allProductosData = Array.isArray(searchResponse) ? searchResponse : [];
+            }
+            totalRecordsCount = this.allProductosData.length;
+            const inicio = (this.paginaActualProductos - 1) * this.elementosPorPagina;
+            const fin = inicio + this.elementosPorPagina;
+            this.productos = this.allProductosData.slice(inicio, fin);
+        }
+
+        this.totalPaginasProductos = Math.ceil(totalRecordsCount / this.elementosPorPagina);
+        if (this.totalPaginasProductos === 0 && totalRecordsCount > 0) {
+            this.totalPaginasProductos = 1; 
+        } else if (this.totalPaginasProductos === 0 && totalRecordsCount === 0) {
+            this.totalPaginasProductos = 0; 
+        }
+
+        this._lastProductoSearch = this.textoBusqueda;
+        this._lastFiltro = "productos";
+
+        if (this.allProductosData.length === 0 && textoBusquedaLower === "") { 
+            const productosResponse = await this.productoAccess.getData().then((res) => res.json());
+            this.allProductosData = Array.isArray(productosResponse) ? productosResponse : [];
+        }
+        this.productosMap = new Map(this.allProductosData.map((p) => [p.idProducto, p.nombre]));
+        this.combos = []; // Asegurarse de limpiar los combos si estamos en productos
+
       } else if (this.filtroSeleccionado === "combos") {
-        if (this.allProductosData.length === 0 || this._lastFiltro !== "productos") {
-          const productosResponse = await this.productoAccess.getData().then((res) => res.json());
-          this.allProductosData = Array.isArray(productosResponse) ? productosResponse : [];
-          this.productosMap = new Map(this.allProductosData.map((p) => [p.idProducto, p.nombre]));
+        
+        if (this.allProductosData.length === 0 || this._lastFiltro !== "productos") { 
+            const productosResponse = await this.productoAccess.getData().then((res) => res.json());
+            this.allProductosData = Array.isArray(productosResponse) ? productosResponse : [];
+            this.productosMap = new Map(this.allProductosData.map((p) => [p.idProducto, p.nombre]));
         }
-        if (
-          this.allCombosData.length === 0 ||
-          this.textoBusqueda !== this._lastComboSearch ||
-          this._lastFiltro !== "combos"
-        ) {
-          let response;
-          if (textoBusquedaLower === "") {
-            response = await this.comboAccess.getData().then((res) => res.json());
-          } else {
-            response = await this.comboAccess.getDataPorNombre(textoBusquedaLower);
-          }
-          this.allCombosData = Array.isArray(response) ? response : [];
 
-          this._lastComboSearch = this.textoBusqueda;
-          this._lastFiltro = "combos";
+        if (this.allCombosData.length === 0 || this.textoBusqueda !== this._lastComboSearch || this._lastFiltro !== "combos") {
+            let response;
+            if (textoBusquedaLower === "") {
+                response = await this.comboAccess.getData().then((res) => res.json());
+            } else {
+                response = await this.comboAccess.getDataPorNombre(textoBusquedaLower);
+            }
+            this.allCombosData = Array.isArray(response) ? response : [];
+            this._lastComboSearch = this.textoBusqueda;
+            this._lastFiltro = "combos";
         }
         this.totalPaginasCombos = Math.ceil(this.allCombosData.length / this.elementosPorPagina);
         const inicio = (this.paginaActualCombos - 1) * this.elementosPorPagina;
@@ -118,7 +141,7 @@ class Producto extends HTMLElement {
           return { ...combo, nombresProductosIncluidos };
         }).slice(inicio, fin); 
 
-        this.productos = [];
+        this.productos = []; 
       }
     } catch (error) {
       console.error("Error al aplicar filtros desde el servidor:", error);
@@ -131,7 +154,6 @@ class Producto extends HTMLElement {
       this.renderProductos();
     }
   }
-
   // ---Eventos ---
 
   almacenarValorBusqueda(e) {

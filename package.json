@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/LL18017/PupaSvFE#readme",
   "devDependencies": {
+    "@open-wc/testing": "^4.0.0",
     "chai": "^5.2.0",
     "esm": "^3.2.25",
     "jsdom": "^26.1.0",
