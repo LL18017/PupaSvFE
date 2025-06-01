@@ -2,7 +2,6 @@ import { expect } from "chai";
 import sinon from "sinon";
 import "../../src/boundary/productos/Producto.js";
 
-// Define la URL base de tu API para mantenerla consistente en los stubs.
 const API_BASE_URL = 'http://localhost:9080/PupaSv-1.0-SNAPSHOT/v1';
 
 describe('Producto Componente', () => {
@@ -38,7 +37,7 @@ describe('Producto Componente', () => {
 
         fetchStub = sinon.stub(global, 'fetch');
 
-        // --- Configuración de Stubs para diferentes llamadas a la API ---
+        //Configuración de Stubs para diferentes llamadas a la API
         fetchStub.withArgs(sinon.match(new RegExp(`^${API_BASE_URL.replace(/\//g, '\\/')}/producto\\?first=\\d+&max=\\d+$`)))
             .callsFake((url) => {
                 const urlParams = new URLSearchParams(url.split('?')[1]);
@@ -83,7 +82,6 @@ describe('Producto Componente', () => {
         await new Promise(resolve => setTimeout(resolve, 500));
     });
 
-    // Se ejecuta después de cada prueba
     afterEach(() => {
         sinon.restore();
         document.body.innerHTML = '';
@@ -220,7 +218,7 @@ describe('Producto Componente', () => {
                 expect(e.composed).to.be.true;
                 done();
             } catch (error) {
-                done(error); // Pasa el error a done para que la prueba falle
+                done(error);
             }
         });
 
@@ -246,7 +244,7 @@ describe('Producto Componente', () => {
         await new Promise(resolve => setTimeout(resolve, 50));
 
         expect(applyFiltersSpy.calledOnce).to.be.true;
-        applyFiltersSpy.restore(); // Limpia el spy
+        applyFiltersSpy.restore(); 
     });
 
     // --- Pruebas de Paginación ---
