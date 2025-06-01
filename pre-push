@@ -1,0 +1,15 @@
+#!/bin/bash
+
+USER="mjlopez"
+API_TOKEN="111ba500fb0d945145a93df2e17ab17eba"
+URL="http://localhost:8080/job/PupaFE/build?token=PupaSvFeTrigger"
+
+response=$(curl --write-out "%{http_code}" --silent --output /dev/null -u $USER:$API_TOKEN "$URL")
+
+if [ "$response" -eq 201 ]; then
+    echo "La API respondió con éxito (201). Procediendo con el push."
+    exit 0
+else
+    echo "La API no respondió correctamente. Código HTTP: $response"
+    exit 1
+fi
