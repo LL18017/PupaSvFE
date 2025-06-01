@@ -21,6 +21,9 @@ global.customElements = dom.window.customElements;
 global.CustomEvent = dom.window.CustomEvent;
 global.localStorage = dom.window.localStorage;
 global.Event = dom.window.Event;
-global.crypto = {
-    randomUUID: () => 'id-mock'
-  };
+if (!global.crypto || typeof global.crypto.randomUUID !== 'function') {
+    global.crypto = {
+        randomUUID: () => 'id-mock',
+    };
+}
+
