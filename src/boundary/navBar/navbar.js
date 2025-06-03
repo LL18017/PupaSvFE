@@ -3,7 +3,7 @@ import { carritoState } from "../../boundary/cart/carritoState.js";
 class NavBar extends HTMLElement {
   constructor() {
     super();
-    this._root = this.attachShadow({ mode: "closed" });
+    this._root = this.attachShadow({ mode: "open" });
     this.menuAbierto = false;
     this._carrito;
     this._onCarritoChange = this.render.bind(this);

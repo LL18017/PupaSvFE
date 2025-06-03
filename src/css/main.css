@@ -65,7 +65,7 @@ body {
 
 
 #productos-container {
-  display: none;
+  display: block;
 }
 
 #button-cart {
