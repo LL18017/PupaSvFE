@@ -1,6 +1,6 @@
-import ProductoAccess from "../../control/productoAccess.js";
-import ComboAccess from "../../control/ComboAccess.js";
-import { html, render } from "../../js/terceros/lit-html.js";
+import ProductoAccess from "../../src/control/productoAccess.js";
+import ComboAccess from "../../src/control/ComboAccess.js";
+import { html, render } from "../../src/js/terceros/lit-html.js";
 
 class Producto extends HTMLElement {
   constructor() {
