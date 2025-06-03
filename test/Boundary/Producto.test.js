@@ -1,357 +1,365 @@
-import { expect } from "chai";
-import sinon from "sinon";
-import "../../src/boundary/productos/Producto.js";
+import ProductoAccess from "../../control/productoAccess.js";
+import ComboAccess from "../../control/ComboAccess.js";
+import { html, render } from "../../js/terceros/lit-html.js";
 
-const API_BASE_URL = 'http://localhost:9080/PupaSv-1.0-SNAPSHOT/v1';
+class Producto extends HTMLElement {
+  constructor() {
+    super();
+    this._root = this.attachShadow({ mode: "open" });
+    this.productoAccess = new ProductoAccess();
+    this.comboAccess = new ComboAccess();
 
-describe('Producto Componente', () => {
-    let productoComponent;
-    let fetchStub;
-    let attachShadowSpy;
-    let consoleErrorStub;
+    // Arrays para los datos actuales y todos los datos
+    this.productos = []; 
+    this.combos = []; 
+    this.allProductosData = []; 
+    this.allCombosData = []; 
 
-    // Datos simulados para las respuestas de la API
-    const mockProductos = [
-        { idProducto: 1, nombre: 'Pupusa', url: 'url_prod_pupusa.jpg', productoPrecioList: [{ idProductoPrecio: 1, precioSugerido: 1.50 }] },
-        { idProducto: 2, nombre: 'Atol', url: 'url_prod_atol.jpg', productoPrecioList: [{ idProductoPrecio: 2, precioSugerido: 2.75 }] },
-        { idProducto: 3, nombre: 'Pizza', url: 'url_prod_pizza.jpg', productoPrecioList: [{ idProductoPrecio: 3, precioSugerido: 10.00 }] },
-        { idProducto: 4, nombre: 'Tamal', url: 'url_prod_tamal.jpg', productoPrecioList: [{ idProductoPrecio: 4, precioSugerido: 1.25 }] },
-        { idProducto: 5, nombre: 'Empanada', url: 'url_prod_empanada.jpg', productoPrecioList: [{ idProductoPrecio: 5, precioSugerido: 0.80 }] },
-        { idProducto: 6, nombre: 'Yuca Frita', url: 'url_prod_yuca.jpg', productoPrecioList: [{ idProductoPrecio: 6, precioSugerido: 3.50 }] },
-    ];
-    const mockCombos = [
-        {
-            idCombo: 101, nombre: 'Combo Ultra', descripcion: 'Un combo genial', precio: 5.00, url: 'url_combo_ultra.jpg',
-            comboDetalleList: [{ idProducto: 1, cantidad: 1 }, { idProducto: 2, cantidad: 1 }]
-        },
-        {
-            idCombo: 102, nombre: 'Combo Mega', descripcion: 'Otro combo', precio: 15.00, url: 'url_combo_mega.jpg',
-            comboDetalleList: [{ idProducto: 3, cantidad: 2 }]
-        },
-    ];
+    this.textoBusqueda = "";
+    this.filtroSeleccionado = "productos"; 
+    this.productosMap = new Map();
+    this.cargando = false; 
 
-    beforeEach(async () => {
+    // Propiedades para la paginación
+    this.paginaActualProductos = 1;
+    this.totalPaginasProductos = 1;
+    this.paginaActualCombos = 1;
+    this.totalPaginasCombos = 1;
+    this.elementosPorPagina = 5;
 
-        document.body.innerHTML = '';
-        sinon.restore();
+    this._lastProductoSearch = "";
+    this._lastComboSearch = "";
+    this._lastFiltro = "";
+  }
 
-        fetchStub = sinon.stub(global, 'fetch');
+  connectedCallback() {
+    const link = document.createElement("link");
+    link.setAttribute("rel", "stylesheet");
+    link.setAttribute("href", "./boundary/productos/producto.css");
+    this._root.appendChild(link);
 
-        //Configuración de Stubs para diferentes llamadas a la API
-        fetchStub.withArgs(sinon.match(new RegExp(`^${API_BASE_URL.replace(/\//g, '\\/')}/producto\\?first=\\d+&max=\\d+$`)))
-            .callsFake((url) => {
-                const urlParams = new URLSearchParams(url.split('?')[1]);
-                const first = parseInt(urlParams.get('first'), 10);
-                const max = parseInt(urlParams.get('max'), 10);
-                const paginatedData = mockProductos.slice(first, first + max);
-                return Promise.resolve(new Response(JSON.stringify(paginatedData), {
-                    status: 200,
-                    headers: { 'Total-records': mockProductos.length.toString() }
-                }));
-            });
-        fetchStub.withArgs(sinon.match(new RegExp(`^${API_BASE_URL.replace(/\//g, '\\/')}/producto/nombre/.+$`)))
-            .callsFake((url) => {
-                const name = url.split('/').pop();
-                const filteredData = mockProductos.filter(p => p.nombre.toLowerCase().includes(name.toLowerCase()));
-                return Promise.resolve(new Response(JSON.stringify(filteredData), { status: 200 }));
-            });
-        fetchStub.withArgs(sinon.match(new RegExp(`^${API_BASE_URL.replace(/\//g, '\\/')}/producto$`)))
-            .resolves(new Response(JSON.stringify(mockProductos), { status: 200 }));
+    this.aplicarFiltros();
+    this.eventoEnter();
+  }
 
-        fetchStub.withArgs(sinon.match(new RegExp(`^${API_BASE_URL.replace(/\//g, '\\/')}/combo$`)))
-            .resolves(new Response(JSON.stringify(mockCombos), { status: 200 }));
+  // --- Métodos de Renderizado ---
+  renderProductos() {
+    render(this.templateProductosYCombos(), this._root);
+  }
 
-        fetchStub.withArgs(sinon.match(new RegExp(`^${API_BASE_URL.replace(/\//g, '\\/')}/combo/nombre/.+$`)))
-            .callsFake((url) => {
-                const name = url.split('/').pop();
-                const filteredData = mockCombos.filter(c =>
-                    c.nombre.toLowerCase().includes(name.toLowerCase()) ||
-                    c.descripcion.toLowerCase().includes(name.toLowerCase()) ||
-                    (c.comboDetalleList && c.comboDetalleList.some(cd =>
-                        mockProductos.find(p => p.idProducto === cd.idProducto)?.nombre.toLowerCase().includes(name.toLowerCase())
-                    ))
-                );
-                return Promise.resolve(new Response(JSON.stringify(filteredData), { status: 200 }));
-            });
+  // --- Metodo para filtrado ---
+async aplicarFiltros() {
+    this.cargando = true;
+    this.renderProductos(); // Muestra el spinner de carga inmediatamente
 
+    const textoBusquedaLower = this.textoBusqueda.toLowerCase();
 
-        attachShadowSpy = sinon.spy(HTMLElement.prototype, 'attachShadow');
-        productoComponent = document.createElement('producto-plantilla');
-        document.body.appendChild(productoComponent);
-        consoleErrorStub = sinon.stub(console, 'error');
-        await new Promise(resolve => setTimeout(resolve, 500));
-    });
-
-    afterEach(() => {
-        sinon.restore();
-        document.body.innerHTML = '';
-    });
-
-    // --- Pruebas del Constructor y `connectedCallback` ---
-    it('debería instanciar correctamente el componente y sus propiedades iniciales', () => {
-        expect(productoComponent).to.be.an.instanceOf(HTMLElement);
-        expect(productoComponent.productoAccess).to.exist;
-        expect(productoComponent.comboAccess).to.exist;
-        expect(productoComponent.productos).to.be.an('array');
-        expect(productoComponent.combos).to.be.an('array');
-        expect(productoComponent.textoBusqueda).to.equal('');
-        expect(productoComponent.filtroSeleccionado).to.equal('productos');
-        expect(attachShadowSpy.calledOnce).to.be.true;
-    });
-
-    it('`connectedCallback` debería cargar los datos del producto correctamente y renderizar los productos inicialmente', async () => {
-        expect(fetchStub.calledWith(sinon.match(`${API_BASE_URL}/producto?first=0&max=5`))).to.be.true;
-        expect(productoComponent.productos).to.deep.equal(mockProductos.slice(0, 5));
-        expect(productoComponent.productos.length).to.equal(5);
-        expect(productoComponent.allProductosData).to.deep.equal(mockProductos);
-        expect(productoComponent.allProductosData.length).to.equal(mockProductos.length);
-
-        expect(productoComponent.totalPaginasProductos).to.equal(Math.ceil(mockProductos.length / productoComponent.elementosPorPagina));
-        const renderedProductCards = productoComponent.shadowRoot.querySelectorAll('.list-producto-container .card');
-        expect(renderedProductCards.length).to.equal(5);
-        expect(renderedProductCards[0].querySelector('h3').textContent).to.include('Pupusa');
-    });
-
-    // --- Pruebas de Manejo de Errores para `fetch` ---
-    it('debería manejar errores al obtener los productos', async () => {
-        fetchStub.reset();
-        fetchStub.withArgs(sinon.match(new RegExp(`^${API_BASE_URL.replace(/\//g, '\\/')}/producto\\?first=\\d+&max=\\d+$`)))
-            .rejects(new Error('Network error during product fetch'));
-
-        fetchStub.withArgs(sinon.match(new RegExp(`^${API_BASE_URL.replace(/\//g, '\\/')}/producto$`)))
-            .resolves(new Response(JSON.stringify([]), { status: 200 }));
-
-        document.body.innerHTML = '';
-        productoComponent = document.createElement('producto-plantilla');
-        document.body.appendChild(productoComponent);
-        await new Promise(resolve => setTimeout(resolve, 100));
-
-        expect(consoleErrorStub.calledOnce).to.be.true;
-        expect(consoleErrorStub.firstCall.args[0]).to.include('Error al aplicar filtros desde el servidor');
-        expect(productoComponent.productos).to.deep.equal([]);
-        expect(productoComponent.allProductosData).to.deep.equal([]);
-        expect(productoComponent.totalPaginasProductos).to.equal(1);
-
-        const shadowRoot = productoComponent.shadowRoot;
-        const renderedProductCards = shadowRoot.querySelectorAll('.list-producto-container .card');
-        expect(renderedProductCards.length).to.equal(0);
-    });
-
-    it('debería manejar errores al obtener los combos', async () => {
-        fetchStub.reset();
-        fetchStub.withArgs(sinon.match(new RegExp(`^${API_BASE_URL.replace(/\//g, '\\/')}/producto$`)))
-            .resolves(new Response(JSON.stringify(mockProductos), { status: 200 }));
-        fetchStub.withArgs(sinon.match(new RegExp(`^${API_BASE_URL.replace(/\//g, '\\/')}/producto\\?first=\\d+&max=\\d+$`)))
-            .resolves(new Response(JSON.stringify(mockProductos.slice(0, 5)), { status: 200, headers: { 'Total-records': mockProductos.length.toString() } }));
-
-        fetchStub.withArgs(sinon.match(new RegExp(`^${API_BASE_URL.replace(/\//g, '\\/')}/combo$`))).rejects(new Error('Server error for combos'));
-        fetchStub.withArgs(sinon.match(new RegExp(`^${API_BASE_URL.replace(/\//g, '\\/')}/combo/nombre/.+$`)))
-            .rejects(new Error('Server error for combos by name'));
-
-        // Cambia el filtro del componente a 'combos'
-        productoComponent.filtroSeleccionado = 'combos';
-        await productoComponent.aplicarFiltros();
-        await new Promise(resolve => setTimeout(resolve, 200));
-
-        expect(consoleErrorStub.calledOnce).to.be.true;
-        expect(consoleErrorStub.firstCall.args[0]).to.include('Error al aplicar filtros desde el servidor');
-        expect(productoComponent.combos).to.deep.equal([]);
-        expect(productoComponent.allCombosData).to.deep.equal([]);
-        expect(productoComponent.totalPaginasCombos).to.equal(1);
-
-        const shadowRoot = productoComponent.shadowRoot;
-        const allVisibleH1s = shadowRoot.querySelectorAll('section:not([style*="display: none"]) h1');
-        let comboSectionH1 = null;
-        for (const h1Element of allVisibleH1s) {
-            if (h1Element.textContent === 'Combos') {
-                comboSectionH1 = h1Element;
-                break;
-            }
+    try {
+      if (this.filtroSeleccionado === "productos") {
+        let responseData = []; 
+        let totalRecordsCount = 0;
+        if (this.textoBusqueda !== this._lastProductoSearch || this._lastFiltro !== "productos") {
+            this.allProductosData = []; // Asegurarse de que se recargue
+            this.paginaActualProductos = 1; // Resetear la página si la búsqueda/filtro cambia
         }
-        expect(comboSectionH1).to.exist;
-        expect(comboSectionH1.textContent).to.equal('Combos');
-        const renderedComboCards = shadowRoot.querySelectorAll('.list-combo-container .card');
-        expect(renderedComboCards.length).to.equal(0);
-    });
 
-    //--- Pruebas para almacenar valor de búsqueda ---
-    it('almacenarValorBusqueda', async () => {
-        const applyFiltersSpy = sinon.spy(productoComponent, 'aplicarFiltros');
-        const searchInput = productoComponent.shadowRoot.querySelector('input[type="text"]');
-
-        searchInput.value = 'pizza';
-        searchInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
-
-        await new Promise(resolve => setTimeout(resolve, 100));
-
-        expect(productoComponent.textoBusqueda).to.equal('pizza');
-        expect(productoComponent.paginaActualProductos).to.equal(1);
-        expect(productoComponent.paginaActualCombos).to.equal(1);
-        expect(productoComponent.allProductosData).to.deep.equal([mockProductos[2]]);
-        expect(productoComponent.allCombosData).to.deep.equal([]);
-        expect(applyFiltersSpy.calledOnce).to.be.true;
-
-        expect(productoComponent.productos.length).to.equal(1);
-        expect(productoComponent.productos[0].nombre).to.equal('Pizza');
-
-        const renderedProducts = productoComponent.shadowRoot.querySelectorAll('.list-producto-container .card');
-        expect(renderedProducts.length).to.equal(1);
-        expect(renderedProducts[0].querySelector('h3').textContent).to.include('Pizza');
-        applyFiltersSpy.restore();
-    });
-
-    // --- Prueba para agregar un producto ---
-    it('`eventAgregarProducto` debería disparar un `CustomEvent` "productoSeleccionado"', (done) => {
-        const mockProductToSelect = mockProductos[0];
-        productoComponent.productos = [mockProductToSelect];
-        productoComponent.renderProductos();
-
-        productoComponent.addEventListener('productoSeleccionado', (e) => {
-            try {
-                expect(e.detail).to.deep.equal({
-                    idProducto: mockProductToSelect.idProducto,
-                    nombre: mockProductToSelect.nombre,
-                    precio: mockProductToSelect.productoPrecioList[0].precioSugerido,
-                    url: mockProductToSelect.url,
-                });
-                expect(e.bubbles).to.be.true;
-                expect(e.composed).to.be.true;
-                done();
-            } catch (error) {
-                done(error);
+        if (textoBusquedaLower === "") {
+            const res = await this.productoAccess.getData(
+                undefined,
+                (this.paginaActualProductos - 1) * this.elementosPorPagina,
+                this.elementosPorPagina
+            );
+            const totalRecordsHeader = res.headers.get('Total-records');
+            if (totalRecordsHeader) {
+                totalRecordsCount = parseInt(totalRecordsHeader, 10);
             }
-        });
+            responseData = await res.json();
+            this.productos = Array.isArray(responseData) ? responseData : []; 
+            this.allProductosData = []
 
-        const productCard = productoComponent.shadowRoot.querySelector('.list-producto-container .card');
-        expect(productCard).to.exist;
-        const selectButton = productCard.querySelector('button#btnAgregar');
-        expect(selectButton).to.exist;
+        } else {
+            if (this.allProductosData.length === 0 || this.textoBusqueda !== this._lastProductoSearch) {
+                const searchResponse = await this.productoAccess.getDataPorNombre(textoBusquedaLower);
+                this.allProductosData = Array.isArray(searchResponse) ? searchResponse : [];
+            }
+            totalRecordsCount = this.allProductosData.length;
+            const inicio = (this.paginaActualProductos - 1) * this.elementosPorPagina;
+            const fin = inicio + this.elementosPorPagina;
+            this.productos = this.allProductosData.slice(inicio, fin);
+        }
 
-        selectButton.click();
+        this.totalPaginasProductos = Math.ceil(totalRecordsCount / this.elementosPorPagina);
+        if (this.totalPaginasProductos === 0 && totalRecordsCount > 0) {
+            this.totalPaginasProductos = 1; 
+        } else if (this.totalPaginasProductos === 0 && totalRecordsCount === 0) {
+            this.totalPaginasProductos = 0; 
+        }
+
+        this._lastProductoSearch = this.textoBusqueda;
+        this._lastFiltro = "productos";
+
+        if (this.allProductosData.length === 0 && textoBusquedaLower === "") { 
+            const productosResponse = await this.productoAccess.getData().then((res) => res.json());
+            this.allProductosData = Array.isArray(productosResponse) ? productosResponse : [];
+        }
+        this.productosMap = new Map(this.allProductosData.map((p) => [p.idProducto, p.nombre]));
+        this.combos = []; // Asegurarse de limpiar los combos si estamos en productos
+
+      } else if (this.filtroSeleccionado === "combos") {
+        
+        if (this.allProductosData.length === 0 || this._lastFiltro !== "productos") { 
+            const productosResponse = await this.productoAccess.getData().then((res) => res.json());
+            this.allProductosData = Array.isArray(productosResponse) ? productosResponse : [];
+            this.productosMap = new Map(this.allProductosData.map((p) => [p.idProducto, p.nombre]));
+        }
+
+        if (this.allCombosData.length === 0 || this.textoBusqueda !== this._lastComboSearch || this._lastFiltro !== "combos") {
+            let response;
+            if (textoBusquedaLower === "") {
+                response = await this.comboAccess.getData().then((res) => res.json());
+            } else {
+                response = await this.comboAccess.getDataPorNombre(textoBusquedaLower);
+            }
+            this.allCombosData = Array.isArray(response) ? response : [];
+            this._lastComboSearch = this.textoBusqueda;
+            this._lastFiltro = "combos";
+        }
+        this.totalPaginasCombos = Math.ceil(this.allCombosData.length / this.elementosPorPagina);
+        const inicio = (this.paginaActualCombos - 1) * this.elementosPorPagina;
+        const fin = inicio + this.elementosPorPagina;
+
+        this.combos = this.allCombosData.map((combo) => {
+          const nombresProductosIncluidos = [];
+          if (combo.comboDetalleList && Array.isArray(combo.comboDetalleList)) {
+            combo.comboDetalleList.forEach((detalle) => {
+              const productName = this.productosMap.get(detalle.idProducto);
+              if (productName) {
+                nombresProductosIncluidos.push(productName);
+              }
+            });
+          }
+          return { ...combo, nombresProductosIncluidos };
+        }).slice(inicio, fin); 
+
+        this.productos = []; 
+      }
+    } catch (error) {
+      console.error("Error al aplicar filtros desde el servidor:", error);
+      this.productos = [];
+      this.combos = [];
+      this.allProductosData = [];
+      this.allCombosData = [];
+    } finally {
+      this.cargando = false;
+      this.renderProductos();
+    }
+  }
+  // ---Eventos ---
+
+  almacenarValorBusqueda(e) {
+    this.textoBusqueda = e.target.value;
+    this.paginaActualProductos = 1;
+    this.paginaActualCombos = 1;
+    this.allProductosData = []; 
+    this.allCombosData = []; 
+    this.aplicarFiltros(); 
+  }
+
+  cambiarFiltro(e) {
+    this.filtroSeleccionado = e.target.value;
+    this.paginaActualProductos = 1;
+    this.paginaActualCombos = 1;
+    this.allProductosData = [];
+    this.allCombosData = []; 
+    this.aplicarFiltros();
+  }
+
+  paginaAnterior() {
+    if (this.filtroSeleccionado === "productos" && this.paginaActualProductos > 1) {
+      this.paginaActualProductos--;
+      this.aplicarFiltros(); 
+    } else if (this.filtroSeleccionado === "combos" && this.paginaActualCombos > 1) {
+      this.paginaActualCombos--;
+      this.aplicarFiltros(); 
+    }
+  }
+
+  paginaSiguiente() {
+    if (this.filtroSeleccionado === "productos" && this.paginaActualProductos < this.totalPaginasProductos) {
+      this.paginaActualProductos++;
+      this.aplicarFiltros();
+    } else if (this.filtroSeleccionado === "combos" && this.paginaActualCombos < this.totalPaginasCombos) {
+      this.paginaActualCombos++;
+      this.aplicarFiltros();
+    }
+  }
+
+  eventoEnter() {
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        this.aplicarFiltros();
+      }
     });
-    // --- Prueba para el evento de tecla Enter ---
-    it('`eventoEnter` debería llamar a `aplicarFiltros` cuando se presiona Enter', async () => {
-        const applyFiltersSpy = sinon.spy(productoComponent, 'aplicarFiltros');
-        const enterEvent = new window.KeyboardEvent('keydown', {
-            key: 'Enter',
-            code: 'Enter',
-            keyCode: 13,
-            which: 13,
-            bubbles: true,
-            composed: true,
-        });
-        document.dispatchEvent(enterEvent);
-        await new Promise(resolve => setTimeout(resolve, 50));
+  }
 
-        expect(applyFiltersSpy.calledOnce).to.be.true;
-        applyFiltersSpy.restore(); 
+  eventAgregarProducto(producto) {
+    const evento = new CustomEvent("productoSeleccionado", {
+      detail: {
+        idProducto: producto.idProducto,
+        nombre: producto.nombre,
+        precio: producto.productoPrecioList[0].precioSugerido,
+        url: producto.url,
+      },
+      bubbles: true, 
+      composed: true, 
     });
+    this.dispatchEvent(evento);
+  }
 
-    // --- Pruebas de Paginación ---
-    it('el botón `paginaSiguiente` debería estar deshabilitado en la última página de productos', async () => {
-        productoComponent.paginaActualProductos = 2;
-        productoComponent.productos = [];
-        productoComponent.totalPaginasProductos = 2;
-        productoComponent.renderProductos();
-        await new Promise(resolve => setTimeout(resolve, 250));
-
-        const nextButton = productoComponent.shadowRoot.querySelector('.paginacion-container button:last-child');
-        expect(nextButton).to.exist;
-        expect(nextButton.disabled).to.be.true;
+  eventAgregarCombo(combo) {
+    const evento = new CustomEvent("comboSeleccionado", {
+      detail: {
+        idCombo: combo.idCombo,
+        nombre: combo.nombre,
+        precio: combo.precio,
+        url: combo.url,
+      },
+      bubbles: true,
+      composed: true,
     });
+    this.dispatchEvent(evento);
+  }
 
-    it('el botón `paginaAnterior` debería estar deshabilitado en la primera página de productos', async () => {
-        productoComponent.paginaActualProductos = 1;
-        productoComponent.productos = mockProductos.slice(0, 5);
-        productoComponent.totalPaginasProductos = 2;
-        productoComponent.renderProductos();
-        await new Promise(resolve => setTimeout(resolve, 250));
+  // --- Plantillas HTML ---
+  templateProductosYCombos() {
+    const paginaActual =
+      this.filtroSeleccionado === "productos"
+        ? this.paginaActualProductos
+        : this.paginaActualCombos;
+    const totalPaginas =
+      this.filtroSeleccionado === "productos"
+        ? this.totalPaginasProductos
+        : this.totalPaginasCombos;
 
-        const prevButton = productoComponent.shadowRoot.querySelector('.paginacion-container button:first-child');
-        expect(prevButton).to.exist;
-        expect(prevButton.disabled).to.be.true;
-    });
+    return html`
+      <div class="busqueda-container">
+        <input
+          type="text"
+          placeholder="Buscar por nombre..."
+          .value="${this.textoBusqueda}"
+          @keydown="${(e) => {
+        if (e.key === 'Enter') {
+          this.almacenarValorBusqueda(e);
+        }
+      }}"
+        />
+        <select @change="${this.cambiarFiltro.bind(this)}">
+          <option value="productos" ?selected=${this.filtroSeleccionado === "productos"}>
+            Productos
+          </option>
+          <option value="combos" ?selected=${this.filtroSeleccionado === "combos"}>
+            Combos
+          </option>
+        </select>
+      </div>
+      ${this.cargando ? html`<div class="spinner">Cargando...</div>` : ''}
 
-    it('debería mostrar "No hay productos disponibles" cuando no hay productos', async () => {
-        fetchStub.reset();
-        fetchStub.withArgs(sinon.match(new RegExp(`^${API_BASE_URL.replace(/\//g, '\\/')}/producto\\?first=\\d+&max=\\d+$`)))
-            .resolves(new Response(JSON.stringify([]), { status: 200, headers: { 'Total-records': '0' } }));
-        fetchStub.withArgs(sinon.match(new RegExp(`^${API_BASE_URL.replace(/\//g, '\\/')}/producto$`)))
-            .resolves(new Response(JSON.stringify([]), { status: 200 }));
+      <section style="display:${this.filtroSeleccionado === "combos" ? "none" : "block"}">
+        <h1>Productos</h1>
+        <div class="list-producto-container">
+          ${this.productos.length === 0 && !this.cargando && this.totalPaginasProductos === 0
+        ? html`<div class="no-disponible">No hay productos disponibles.</div>`
+        : this.productos.map((producto) => this.crearTarjetaProducto(producto))}
+        </div>
+        ${this.totalPaginasProductos > 1 && !this.cargando
+        ? html`
+              <div class="paginacion-container">
+                <button
+                  @click="${this.paginaAnterior.bind(this)}"
+                  ?disabled="${this.paginaActualProductos === 1}"
+                >
+                  Anterior
+                </button>
+                <span>Página ${this.paginaActualProductos} de ${this.totalPaginasProductos}</span>
+                <button
+                  @click="${this.paginaSiguiente.bind(this)}"
+                  ?disabled="${this.paginaActualProductos === this.totalPaginasProductos}"
+                >
+                  Siguiente
+                </button>
+              </div>
+            `
+        : ''}
+      </section>
 
-        document.body.innerHTML = '';
-        productoComponent = document.createElement('producto-plantilla');
-        document.body.appendChild(productoComponent);
-        await new Promise(resolve => setTimeout(resolve, 150));
+      <section style="display:${this.filtroSeleccionado === "productos" ? "none" : "block"}">
+        <h1>Combos</h1>
+        <div class="list-combo-container">
+          ${this.combos.length === 0 && !this.cargando && this.totalPaginasCombos === 0
+        ? html`<div class="no-disponible">No hay combos disponibles.</div>`
+        : this.combos.map((combo) => this.crearTarjetaCombo(combo))}
+        </div>
+        ${this.totalPaginasCombos > 1 && !this.cargando
+        ? html`
+              <div class="paginacion-container">
+                <button
+                  @click="${this.paginaAnterior.bind(this)}"
+                  ?disabled="${this.paginaActualCombos === 1}"
+                >
+                  Anterior
+                </button>
+                <span>Página ${this.paginaActualCombos} de ${this.totalPaginasCombos}</span>
+                <button
+                  @click="${this.paginaSiguiente.bind(this)}"
+                  ?disabled="${this.paginaActualCombos === this.totalPaginasCombos}"
+                >
+                  Siguiente
+                </button>
+              </div>
+            `
+        : ''}
+      </section>
+    `;
+  }
 
-        const noDataMessage = productoComponent.shadowRoot.querySelector('.list-producto-container .no-disponible');
-        expect(noDataMessage).to.exist;
-        expect(noDataMessage.textContent).to.equal('No hay productos disponibles.');
-        expect(productoComponent.totalPaginasProductos).to.equal(0);
-    });
+  crearTarjetaProducto(producto) {
+    return html`
+      <div class="card">
+        <div class="imagenContainer">
+          <img class="imagenProducto" src="${producto.url}" alt="Imagen de ${producto.nombre}" />
+        </div>
+        <div class="info">
+          <h3 class="info">Producto: ${producto.nombre}</h3>
+          <p class="info">Precio: $${producto.productoPrecioList[0].precioSugerido.toFixed(2)}</p>
+        </div>
+        <button @click=${(e) => this.eventAgregarProducto(producto)} id="btnAgregar">
+          Seleccionar
+        </button>
+      </div>
+    `;
+  }
 
-    it('debería mostrar "No hay productos disponibles" cuando no hay productos', async () => {
-        fetchStub.reset();
-        fetchStub.withArgs(sinon.match(new RegExp(`^${API_BASE_URL.replace(/\//g, '\\/')}/producto\\?first=\\d+&max=\\d+$`)))
-            .resolves(new Response(JSON.stringify([]), { status: 200, headers: { 'Total-records': '0' } }));
-        fetchStub.withArgs(sinon.match(new RegExp(`^${API_BASE_URL.replace(/\//g, '\\/')}/producto$`)))
-            .resolves(new Response(JSON.stringify([]), { status: 200 }));
-
-        document.body.innerHTML = '';
-        productoComponent = document.createElement('producto-plantilla');
-        document.body.appendChild(productoComponent);
-        await new Promise(resolve => setTimeout(resolve, 100));
-
-        const noDataMessage = productoComponent.shadowRoot.querySelector('.list-producto-container .no-disponible');
-        expect(noDataMessage).to.exist;
-        expect(noDataMessage.textContent).to.equal('No hay productos disponibles.');
-        expect(productoComponent.totalPaginasProductos).to.equal(0);
-    });
-
-    it('debería mostrar "No hay combos disponibles" cuando no hay combos', async () => {
-        fetchStub.reset();
-        fetchStub.withArgs(sinon.match(new RegExp(`^${API_BASE_URL.replace(/\//g, '\\/')}/producto$`)))
-            .resolves(new Response(JSON.stringify(mockProductos), { status: 200 }));
-        fetchStub.withArgs(sinon.match(new RegExp(`^${API_BASE_URL.replace(/\//g, '\\/')}/producto\\?first=\\d+&max=\\d+$`)))
-            .resolves(new Response(JSON.stringify(mockProductos.slice(0, 5)), { status: 200, headers: { 'Total-records': mockProductos.length.toString() } }));
-
-        fetchStub.withArgs(sinon.match(new RegExp(`^${API_BASE_URL.replace(/\//g, '\\/')}/combo$`))).resolves(new Response(JSON.stringify([]), { status: 200 }));
-
-        productoComponent.filtroSeleccionado = 'combos';
-        await productoComponent.aplicarFiltros();
-        await new Promise(resolve => setTimeout(resolve, 100));
-
-        const noDataMessage = productoComponent.shadowRoot.querySelector('.list-combo-container .no-disponible');
-        expect(noDataMessage).to.exist;
-        expect(noDataMessage.textContent).to.equal('No hay combos disponibles.');
-        expect(productoComponent.totalPaginasCombos).to.equal(0);
-    });
-
-    it('debería mostrar el spinner de carga cuando `cargando` es `true`', async () => {
-        fetchStub.reset();
-        fetchStub.withArgs(sinon.match(new RegExp(`^${API_BASE_URL.replace(/\//g, '\\/')}/producto\\?first=\\d+&max=\\d+$`)))
-            .returns(new Promise(resolve => {
-                setTimeout(() => resolve(new Response(JSON.stringify(mockProductos.slice(0, 5)),
-                    { status: 200, headers: { 'Total-records': mockProductos.length.toString() } })), 100);
-            }));
-        fetchStub.withArgs(sinon.match(new RegExp(`^${API_BASE_URL.replace(/\//g, '\\/')}/combo$`)))
-            .resolves(new Response(JSON.stringify(mockCombos), { status: 200 }));
-        fetchStub.withArgs(sinon.match(new RegExp(`^${API_BASE_URL.replace(/\//g, '\\/')}/producto$`)))
-            .resolves(new Response(JSON.stringify(mockProductos), { status: 200 }));
-
-
-        document.body.innerHTML = '';
-        productoComponent = document.createElement('producto-plantilla');
-        document.body.appendChild(productoComponent);
-
-        await new Promise(resolve => setTimeout(resolve, 10));
-
-        expect(productoComponent.cargando).to.be.true;
-        expect(productoComponent.shadowRoot.querySelector('.spinner')).to.exist;
-        expect(productoComponent.shadowRoot.querySelector('.spinner').textContent).to.equal('Cargando...');
-
-        await new Promise(resolve => setTimeout(resolve, 200));
-        expect(productoComponent.cargando).to.be.false;
-        expect(productoComponent.shadowRoot.querySelector('.spinner')).to.not.exist;
-    });
-});
+  crearTarjetaCombo(combo) {
+    return html`
+      <div class="card">
+        <div class="imagenContainer">
+          <img class="imagenProducto" src="${combo.url}" alt="Imagen de ${combo.nombre}" />
+        </div>
+        <div class="info">
+          <h3 class="info">Combo: ${combo.nombre}</h3>
+          <p class="info">Descripción: ${combo.descripcion}</p>
+          <p class="info">Precio: $${combo.precio.toFixed(2)}</p>
+          ${combo.nombresProductosIncluidos && combo.nombresProductosIncluidos.length > 0
+        ? html`<p class="info productos-incluidos">
+                Incluye: ${combo.nombresProductosIncluidos.join(", ")}
+              </p>`
+        : ''}
+        </div>
+        <button @click=${(e) => this.eventAgregarCombo(combo)} id="btnAgregar">
+          Seleccionar
+        </button>
+      </div>
+    `;
+  }
+}
+customElements.define("producto-plantilla", Producto);
