@@ -25,7 +25,7 @@ class Producto extends HTMLElement {
     this.totalPaginasProductos = 1;
     this.paginaActualCombos = 1;
     this.totalPaginasCombos = 1;
-    this.elementosPorPagina = 5;
+    this.elementosPorPagina = 10;
 
     this._lastProductoSearch = "";
     this._lastComboSearch = "";
