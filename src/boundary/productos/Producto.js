@@ -25,7 +25,7 @@ class Producto extends HTMLElement {
     this.totalPaginasProductos = 1;
     this.paginaActualCombos = 1;
     this.totalPaginasCombos = 1;
-    this.elementosPorPagina = 5;
+    this.elementosPorPagina = 10;
 
     this._lastProductoSearch = "";
     this._lastComboSearch = "";
@@ -48,111 +48,195 @@ class Producto extends HTMLElement {
   }
 
   // --- Metodo para filtrado ---
-  async aplicarFiltros() {
-    this.cargando = true;
-    this.renderProductos(); // Muestra el spinner de carga inmediatamente
+  aplicarFiltros() {
+    this, this.cargando = true;
+    this.errorMensaje = "";
+    this, this.renderProductos();
 
     const textoBusquedaLower = this.textoBusqueda.toLowerCase();
+    let dataFetchPromise;
 
-    try {
+    const ensureProductosMapReady = () => {
+      if (this.allProductosData.length === 0) {
+        return this.productoAccess.getData()
+          .then(res => res.json())
+          .then(productosResponse => {
+            this.allProductosData = Array.isArray(productosResponse) ? productosResponse : [];
+            this.productosMap = new Map(this.allProductosData.map((p) => [p.idProducto, p.nombre]));
+          })
+          .catch(error => {
+            console.error("Error al cargar productos para el mapa:", error);
+            this.errorMensaje = "Error al inicializar productos para el mapa.";
+            return Promise.reject(error);
+          });
+      }
+      return Promise.resolve();
+    };
+
+    dataFetchPromise = ensureProductosMapReady()
+      .then(() => {
+        return this._executeFilteringLogic(textoBusquedaLower);
+      })
+      .catch(error => {
+        this.productos = [];
+        this.combos = [];
+        this.errorMensaje = this.errorMensaje || "Ocurrió un error inesperado al cargar los datos.";
+        return Promise.reject(error);
+      });
+
+    dataFetchPromise
+      .catch(error => {
+        console.error("Error en la cadena principal de filtros:", error);
+        this.productos = [];
+        this.combos = [];
+        this.errorMensaje = this.errorMensaje || "Ocurrió un error inesperado al cargar los datos.";
+      })
+      .finally(() => {
+        this.cargando = false;
+        this.renderProductos();
+      });
+  }
+
+  // Método auxiliar para filtrado principal, devolviendo una Promesa
+  _executeFilteringLogic(textoBusquedaLower) {
+    return new Promise((resolve, reject) => {
+      let totalRecordsCount = 0;
+      let fetchPromise;
+
       if (this.filtroSeleccionado === "productos") {
-        let responseData = [];
-        let totalRecordsCount = 0;
-        if (this.textoBusqueda !== this._lastProductoSearch || this._lastFiltro !== "productos") {
-          this.allProductosData = []; // Asegurarse de que se recargue
-          this.paginaActualProductos = 1; // Resetear la página si la búsqueda/filtro cambia
-        }
+        this.combos = [];
 
-        if (textoBusquedaLower === "") {
-          const res = await this.productoAccess.getData(
-            undefined,
-            (this.paginaActualProductos - 1) * this.elementosPorPagina,
-            this.elementosPorPagina
-          );
-          const totalRecordsHeader = res.headers.get('Total-records');
-          if (totalRecordsHeader) {
-            totalRecordsCount = parseInt(totalRecordsHeader, 10);
+        const shouldFetchNewProducts =
+          this.textoBusqueda !== this._lastProductoSearch ||
+          this._lastFiltro !== "productos";
+
+        if (shouldFetchNewProducts || (textoBusquedaLower === "" && this.allProductosData.length === 0)) {
+          this.paginaActualProductos = 1;
+
+          if (textoBusquedaLower === "") {
+            fetchPromise = this.productoAccess.getData(
+              undefined,
+              (this.paginaActualProductos - 1) * this.elementosPorPagina,
+              this.elementosPorPagina
+            )
+              .then(res => {
+                const totalRecordsHeader = res.headers.get('Total-records');
+                totalRecordsCount = totalRecordsHeader ? parseInt(totalRecordsHeader, 10) : 0;
+                return res.json();
+              })
+              .then(data => {
+                this.productos = Array.isArray(data) ? data : [];
+                this.allProductosData = [];
+              });
+          } else {
+            fetchPromise = this.productoAccess.getDataPorNombre(textoBusquedaLower)
+              .then(searchResponse => {
+                this.allProductosData = Array.isArray(searchResponse) ? searchResponse : [];
+                totalRecordsCount = this.allProductosData.length;
+                const inicio = (this.paginaActualProductos - 1) * this.elementosPorPagina;
+                const fin = inicio + this.elementosPorPagina;
+                this.productos = this.allProductosData.slice(inicio, fin);
+              });
           }
-          responseData = await res.json();
-          this.productos = Array.isArray(responseData) ? responseData : [];
-          this.allProductosData = []
-
+          this._lastProductoSearch = this.textoBusqueda;
         } else {
-          if (this.allProductosData.length === 0 || this.textoBusqueda !== this._lastProductoSearch) {
-            const searchResponse = await this.productoAccess.getDataPorNombre(textoBusquedaLower);
-            this.allProductosData = Array.isArray(searchResponse) ? searchResponse : [];
-          }
-          totalRecordsCount = this.allProductosData.length;
+          totalRecordsCount = this.allProductosData.length > 0 ? this.allProductosData.length : this.productos.length;
           const inicio = (this.paginaActualProductos - 1) * this.elementosPorPagina;
           const fin = inicio + this.elementosPorPagina;
           this.productos = this.allProductosData.slice(inicio, fin);
+          fetchPromise = Promise.resolve();
         }
-
-        this.totalPaginasProductos = Math.ceil(totalRecordsCount / this.elementosPorPagina);
-        if (this.totalPaginasProductos === 0 && totalRecordsCount > 0) {
-          this.totalPaginasProductos = 1;
-        } else if (this.totalPaginasProductos === 0 && totalRecordsCount === 0) {
+        if (fetchPromise) {
+          fetchPromise
+            .then(() => {
+              this.totalPaginasProductos = Math.max(1, Math.ceil(totalRecordsCount / this.elementosPorPagina));
+              if (totalRecordsCount === 0) this.totalPaginasProductos = 0;
+              this._lastFiltro = "productos";
+              resolve();
+            })
+            .catch(error => {
+              console.error("Error al aplicar filtros de productos:", error);
+              this.errorMensaje = "Ocurrió un error al cargar los productos.";
+              reject(error);
+            });
+        } else {
           this.totalPaginasProductos = 0;
+          this._lastFiltro = "productos";
+          resolve();
         }
-
-        this._lastProductoSearch = this.textoBusqueda;
-        this._lastFiltro = "productos";
-
-        if (this.allProductosData.length === 0 && textoBusquedaLower === "") {
-          const productosResponse = await this.productoAccess.getData().then((res) => res.json());
-          this.allProductosData = Array.isArray(productosResponse) ? productosResponse : [];
-        }
-        this.productosMap = new Map(this.allProductosData.map((p) => [p.idProducto, p.nombre]));
-        this.combos = []; // Asegurarse de limpiar los combos si estamos en productos
 
       } else if (this.filtroSeleccionado === "combos") {
-
-        if (this.allProductosData.length === 0 || this._lastFiltro !== "productos") {
-          const productosResponse = await this.productoAccess.getData().then((res) => res.json());
-          this.allProductosData = Array.isArray(productosResponse) ? productosResponse : [];
-          this.productosMap = new Map(this.allProductosData.map((p) => [p.idProducto, p.nombre]));
-        }
-
-        if (this.allCombosData.length === 0 || this.textoBusqueda !== this._lastComboSearch || this._lastFiltro !== "combos") {
-          let response;
-          if (textoBusquedaLower === "") {
-            response = await this.comboAccess.getData().then((res) => res.json());
-          } else {
-            response = await this.comboAccess.getDataPorNombre(textoBusquedaLower);
-          }
-          this.allCombosData = Array.isArray(response) ? response : [];
-          this._lastComboSearch = this.textoBusqueda;
-          this._lastFiltro = "combos";
-        }
-        this.totalPaginasCombos = Math.ceil(this.allCombosData.length / this.elementosPorPagina);
-        const inicio = (this.paginaActualCombos - 1) * this.elementosPorPagina;
-        const fin = inicio + this.elementosPorPagina;
-
-        this.combos = this.allCombosData.map((combo) => {
-          const nombresProductosIncluidos = [];
-          if (combo.comboDetalleList && Array.isArray(combo.comboDetalleList)) {
-            combo.comboDetalleList.forEach((detalle) => {
-              const productName = this.productosMap.get(detalle.idProducto);
-              if (productName) {
-                nombresProductosIncluidos.push(productName);
-              }
-            });
-          }
-          return { ...combo, nombresProductosIncluidos };
-        }).slice(inicio, fin);
-
         this.productos = [];
+
+        const shouldFetchNewCombos =
+          this.textoBusqueda !== this._lastComboSearch || this._lastFiltro !== "combos";
+
+        if (shouldFetchNewCombos || this.allCombosData.length === 0) {
+          this.paginaActualCombos = 1;
+          if (textoBusquedaLower === "") {
+            fetchPromise = this.comboAccess.getData().then(res => res.json());
+          } else {
+            fetchPromise = this.comboAccess.getDataPorNombre(textoBusquedaLower);
+          }
+          fetchPromise
+            .then(response => {
+              this.allCombosData = Array.isArray(response) ? response : [];
+              this._lastComboSearch = this.textoBusqueda;
+
+              totalRecordsCount = this.allCombosData.length;
+              const inicio = (this.paginaActualCombos - 1) * this.elementosPorPagina;
+              const fin = inicio + this.elementosPorPagina;
+
+              this.combos = this.allCombosData.map((combo) => {
+                const nombresProductosIncluidos = [];
+                if (combo.comboDetalleList && Array.isArray(combo.comboDetalleList)) {
+                  combo.comboDetalleList.forEach((detalle) => {
+                    const productName = this.productosMap.get(detalle.idProducto);
+                    if (productName) {
+                      nombresProductosIncluidos.push(productName);
+                    }
+                  });
+                }
+                return { ...combo, nombresProductosIncluidos };
+              }).slice(inicio, fin);
+
+              this.totalPaginasCombos = Math.max(1, Math.ceil(totalRecordsCount / this.elementosPorPagina));
+              if (totalRecordsCount === 0) this.totalPaginasCombos = 0;
+              this._lastFiltro = "combos";
+              resolve();
+            })
+            .catch(error => {
+              console.error("Error al aplicar filtros de combos:", error);
+              this.errorMensaje = "Ocurrió un error al cargar los combos.";
+              reject(error);
+            });
+        } else {
+          totalRecordsCount = this.allCombosData.length;
+          const inicio = (this.paginaActualCombos - 1) * this.elementosPorPagina;
+          const fin = inicio + this.elementosPorPagina;
+
+          this.combos = this.allCombosData.map((combo) => {
+            const nombresProductosIncluidos = [];
+            if (combo.comboDetalleList && Array.isArray(combo.comboDetalleList)) {
+              combo.comboDetalleList.forEach((detalle) => {
+                const productName = this.productosMap.get(detalle.idProducto);
+                if (productName) {
+                  nombresProductosIncluidos.push(productName);
+                }
+              });
+            }
+            return { ...combo, nombresProductosIncluidos };
+          }).slice(inicio, fin);
+
+          this.totalPaginasCombos = Math.max(1, Math.ceil(totalRecordsCount / this.elementosPorPagina));
+          if (totalRecordsCount === 0) this.totalPaginasCombos = 0;
+          this._lastFiltro = "combos";
+          resolve();
+        }
+      } else {
+        resolve();
       }
-    } catch (error) {
-      console.error("Error al aplicar filtros desde el servidor:", error);
-      this.productos = [];
-      this.combos = [];
-      this.allProductosData = [];
-      this.allCombosData = [];
-    } finally {
-      this.cargando = false;
-      this.renderProductos();
-    }
+    });
   }
   // ---Eventos ---
 

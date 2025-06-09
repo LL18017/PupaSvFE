@@ -1,6 +1,10 @@
 #!/bin/bash
 
+<<<<<<< HEAD
 API_TOKEN="111ba500fb0d945145a93df2e17ab17eba"
+=======
+API_TOKEN="114b239f33bc5bd2777ffef853489751a3"
+>>>>>>> e8a1181fdfda003e137e0c443fe80c9152054cae
 USER="mjlopez"
 
 JENKINS_URL="http://localhost:8080"
@@ -16,7 +20,11 @@ response=$(curl -X POST --silent --write-out "%{http_code}" --output /dev/null \
   -u "$USER:$API_TOKEN" -H "$CRUMB" "$JOB_URL")
 
 if [ "$response" -eq 201 ]; then
+<<<<<<< HEAD
     echo "✔️ Jenkins respondió con éxito (201). Procediendo con el push."
+=======
+    echo "✔ Jenkins respondió con éxito (201). Procediendo con el push."
+>>>>>>> e8a1181fdfda003e137e0c443fe80c9152054cae
     exit 0
 else
     echo "❌ Jenkins no respondió correctamente. Código HTTP: $response"

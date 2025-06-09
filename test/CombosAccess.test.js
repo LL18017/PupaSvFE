@@ -11,21 +11,21 @@ describe('ComboAccessTest', () => {
     let fetchStub;
 
     beforeEach(() => {
-        //console.log('Dentro de beforeEach: ComboAccess antes de new:', ComboAccess);
-        combo = new ComboAccess(); // Crea una nueva instancia de ComboAccess para cada prueba
-        //console.log('Dentro de beforeEach: combo después de new:', combo);
-        fetchStub = sinon.stub(global, 'fetch'); // Stub de global.fetch para cada prueba
+        combo = new ComboAccess(); 
+        fetchStub = sinon.stub(global, 'fetch'); 
     });
 
     afterEach(() => {
         fetchStub.restore();
     });
 
+    // -- Prueba para intanciar los combos --
     it('debería instanciar ComboAccess', () => {
         const instance = new ComboAccess();
         expect(instance).to.be.an.instanceOf(ComboAccess);
     });
 
+    // --- Prueba para obtener los combos --
     it('getData debería obtener todos los combos (o paginados)', async () => {
         const mockCombos = [
             { id: 1001, nombre: 'superCombo' },
@@ -36,21 +36,20 @@ describe('ComboAccessTest', () => {
             status: 200,
             json: async () => mockCombos
         });
-
-
         const resultResponse = await combo.getData();
         const data = await resultResponse.json();
 
         expect(fetchStub.calledOnce).to.be.true;
         const calledUrl = fetchStub.firstCall.args[0];
-        expect(calledUrl).to.equal('http://localhost:9080/PupaSv-1.0-SNAPSHOT/v1/combo'); // Sin ID, first, max
+        expect(calledUrl).to.equal('http://localhost:9080/PupaSv-1.0-SNAPSHOT/v1/combo'); 
 
         expect(data).to.be.an("array").that.has.lengthOf(2);
         expect(data[0].nombre).to.equal("superCombo");
     });
 
+    //--- Prueba para un combos por su nombre ---
     it('getData con id debería obtener un combo específico', async () => {
-        const mockCombo = { id: 1, nombre: 'Combo 1' }; // Capitalización corregida
+        const mockCombo = { id: 1, nombre: 'Combo 1' };
         fetchStub.resolves({
             status: 200,
             json: async () => mockCombo
@@ -69,6 +68,7 @@ describe('ComboAccessTest', () => {
         expect(data.id).to.equal(1);
     });
 
+    //--- Prueba para actualizar un combo --- 
     it('updateData debería actualizar un combo', async () => {
         const updatedComboData = { id: 1, nombre: 'Combo 1 actualizado' };
         fetchStub.resolves({
@@ -95,18 +95,17 @@ describe('ComboAccessTest', () => {
         expect(data.id).to.equal(1);
     });
 
+    //--- Prueba para crear un nuevo combo
     it('createData debería crear un combo', async () => {
         const newComboData = { nombre: 'Combo nuevo' };
-        // Asumiendo que tu API devuelve el objeto creado con un ID
         fetchStub.resolves({
-            status: 200, // O 201 para creado
+            status: 200,
             json: async () => ({ id: 999, ...newComboData }),
             headers: { get: (header) => header === "Content-Type" ? "application/json" : null }
         });
 
-
-        const resultResponse = await combo.createData(newComboData); // Corregido: llamando a createData
-        const data = await resultResponse.json(); // Asumiendo que createData devuelve el nuevo objeto
+        const resultResponse = await combo.createData(newComboData);
+        const data = await resultResponse.json(); 
 
         expect(fetchStub.calledOnce).to.be.true;
         const calledUrl = fetchStub.firstCall.args[0];
@@ -122,10 +121,11 @@ describe('ComboAccessTest', () => {
         expect(data.nombre).to.equal('Combo nuevo');
     });
 
+    // --- Prueba para eliminar un combo 
     it('deleteData debería eliminar un combo', async () => {
         fetchStub.resolves({
             status: 204,
-            json: async () => null // si se intenta llamar .json()
+            json: async () => null
         });
 
 
@@ -150,10 +150,7 @@ describe('ComboAccessTest', () => {
             json: async () => mockCombosByName
         });
 
-
-        // resultResponse YA contendrá el array JSON directamente
-        const data = await combo.getDataPorNombre('superCombo'); // <--- ¡CAMBIO AQUÍ! Await directamente el resultado
-
+        const data = await combo.getDataPorNombre('superCombo'); 
         expect(fetchStub.calledOnce).to.be.true;
         const calledUrl = fetchStub.firstCall.args[0];
         expect(calledUrl).to.equal('http://localhost:9080/PupaSv-1.0-SNAPSHOT/v1/combo/nombre/superCombo');
