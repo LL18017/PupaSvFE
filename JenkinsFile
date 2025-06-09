@@ -1,0 +1,97 @@
+pipeline {
+  agent any
+
+  tools {
+    nodejs 'nodejs'
+  }
+
+  environment {
+    PROJECT_ROOT = 'PupaSvFE'
+  }
+
+  stages {
+    stage('Limpiar Workspace') {
+      steps {
+        echo 'Eliminando archivos del workspace...'
+        deleteDir()
+      }
+    }
+
+    stage('Clonar repositorio') {
+      steps {
+        echo 'Clonando proyecto desde ruta local con git'
+        sh 'git clone /usr/local/proyectos/PupaSvFE'
+      }
+    }
+
+    stage('Instalar dependencias') {
+      steps {
+        dir("${PROJECT_ROOT}") {
+          sh 'npm install'
+        }
+      }
+    }
+
+    stage('Ejecutar pruebas') {
+      steps {
+        dir("${PROJECT_ROOT}") {
+          sh 'npm run test'
+        }
+      }
+    }
+    stage('Eliminar imagen si existe') {
+            steps {
+                script {
+                    sh '''
+                    IMAGE_NAME="fronted-test"
+                    if docker images --format '{{.Repository}}:{{.Tag}}' | grep -q "^$IMAGE_NAME:"; then
+                        echo "La imagen $IMAGE_NAME existe. Eliminando..."
+                        docker rmi -f $(docker images -q $IMAGE_NAME)
+                    else
+                        echo "La imagen $IMAGE_NAME no existe. Nada que eliminar."
+                    fi
+                    '''
+                }
+            }
+        }
+
+    stage('creando imagen para test end-to-end docker') {
+      steps {
+        dir("${PROJECT_ROOT}") {
+          sh 'docker build -t fronted-test .'
+        }
+      }
+    }
+  }
+post {
+    success {
+        archiveArtifacts artifacts: 'PupaSvFE/**', fingerprint: true
+
+        sh '''
+        IMAGE_NAME="fronted-pupa"
+        if docker images --format '{{.Repository}}:{{.Tag}}' | grep -q "^$IMAGE_NAME:"; then
+            echo "La imagen $IMAGE_NAME existe. Eliminando..."
+            docker rmi -f $(docker images -q $IMAGE_NAME)
+        else
+            echo "La imagen $IMAGE_NAME no existe. Nada que eliminar."
+        fi
+        '''
+
+        dir("${PROJECT_ROOT}") {
+            // Construir imagen
+            sh 'docker build -t fronted-pupa .'
+
+            // Eliminar contenedor anterior si existe
+            sh '''
+            if [ "$(docker ps -aq -f name=frontend-pupa-container)" ]; then
+              docker rm -f frontend-pupa-container
+            fi
+            '''
+
+            // Ejecutar contenedor
+            sh 'docker run -d --name frontend-pupa-container --network tpi_pupa_network -p 3000:80 fronted-pupa'
+        }
+    }
+}
+
+}

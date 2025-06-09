@@ -6,7 +6,7 @@ OUTPUT="/usr/share/nginx/html/config.js"
 
 # Validar si existe el archivo template
 if [ ! -f "$TEMPLATE" ]; then
-  echo "❌ No se encontró $TEMPLATE"
+  echo "No se encontró $TEMPLATE"
   exit 1
 fi
 

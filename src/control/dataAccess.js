@@ -2,7 +2,9 @@ class dataAccess {
   PATH_URL = "tipoProducto";
   constructor(path) {
     this.PATH_URL = path; // Definir PATH_URL con un valor por defecto
-    this.URL = `http://localhost:9080/PupaSv-1.0-SNAPSHOT/v1/${this.PATH_URL}`;
+    console.log("la urle es :" + window.URLBASE_CON_HOST_PUERTO);
+
+    this.URL = `${window.URLBASE_CON_HOST_PUERTO === undefined ? "http://localhost:9080" : window.URLBASE_CON_HOST_PUERTO}/PupaSv-1.0-SNAPSHOT/v1/${this.PATH_URL}`;
   }
 
   /**

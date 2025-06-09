@@ -6,7 +6,7 @@
         "label":"lanzar-browser",
         "type": "shell",
         "isBackground": true,
-        "command":"browser-sync start --server ./src -f \"**/*\" ./src --no-open"
+       "command": "./entrypoint.sh && browser-sync start --server ./src -f \"**/*\" ./src --no-open",
   
         },
         {
