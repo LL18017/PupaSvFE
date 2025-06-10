@@ -7,6 +7,7 @@ pipeline {
 
   environment {
     PROJECT_ROOT = 'PupaSvFE'
+    PROJECT_END = 'PupaSvETE'
   }
 
   stages {
@@ -17,10 +18,11 @@ pipeline {
       }
     }
 
-    stage('Clonar repositorio') {
+     stage('Clonar repositorio') {
       steps {
         echo 'Clonando proyecto desde ruta local con git'
         sh 'git clone /usr/local/proyectos/PupaSvFE'
+        sh 'git clone /usr/local/proyectos/PupaSvETE'
       }
     }
 
@@ -55,10 +57,18 @@ pipeline {
             }
         }
 
+
     stage('creando imagen para test end-to-end docker') {
       steps {
         dir("${PROJECT_ROOT}") {
           sh 'docker build -t fronted-test .'
+        }
+      }
+    }
+      stage('Ejecutar pruebas EndToEnd') {
+      steps {
+        dir("${PROJECT_END}") {
+          sh 'mvn test'
         }
       }
     }
