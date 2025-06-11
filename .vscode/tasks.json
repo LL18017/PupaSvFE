@@ -10,6 +10,13 @@
   
         },
         {
+          "label": "lanzar-browser-para-integracion",
+          "type": "shell",
+          "isBackground": true,
+          "command": "browser-sync start --server ./test -f \"**/*\" ./test --port 3050 --no-open"
+        }
+        ,
+        {
           "label":"lanzar-mocha",
           "type": "shell",
           "isBackground": true,

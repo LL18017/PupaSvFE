@@ -18,6 +18,16 @@
         {
             "type": "chrome",
             "request": "launch",
+            "name": "lanzar integracion",
+            "url": "http://localhost:3050",
+            "webRoot": "${workspaceFolder}/",
+            "preLaunchTask": "lanzar-browser-para-integracion",
+            "postDebugTask": "detener-mocha",
+            "runtimeExecutable": "/usr/bin/brave-browser"
+        },
+        {
+            "type": "chrome",
+            "request": "launch",
             "name": "lanzar mocha",
             "url": "http://localhost:3000",
             "webRoot": "${workspaceFolder}/",
