@@ -1,0 +1,282 @@
+[
+    {
+        "activo": true,
+        "idProducto": 1001,
+        "nombre": "coca 1.25L",
+        "productoPrecioList": [
+            {
+                "fechaDesde": "2025-01-01",
+                "fechaHasta": "2030-12-31T06:00:00Z[UTC]",
+                "idProductoPrecio": 1001,
+                "precioSugerido": 1.50
+            }
+        ],
+        "url": "https://cdn.pedix.app/lJ0himepqTJcT1Ynn5lP/products/1718493289062-24927.png?size=2000x2000"
+    },
+    {
+        "activo": true,
+        "idProducto": 1002,
+        "nombre": "pepsi",
+        "productoPrecioList": [
+            {
+                "fechaDesde": "2025-01-01",
+                "fechaHasta": "2030-12-31T06:00:00Z[UTC]",
+                "idProductoPrecio": 1002,
+                "precioSugerido": 1.50
+            }
+        ],
+        "url": "https://farinapizzas.com.au/wp-content/uploads/2023/05/1.25L-Pepsi.jpg"
+    },
+    {
+        "activo": true,
+        "idProducto": 1003,
+        "nombre": "pupusas",
+        "productoPrecioList": [
+            {
+                "fechaDesde": "2025-01-01",
+                "fechaHasta": "2030-12-31T06:00:00Z[UTC]",
+                "idProductoPrecio": 1003,
+                "precioSugerido": 0.80
+            }
+        ],
+        "url": "https://imag.bonviveur.com/pupusas-salvadorenas.webp"
+    },
+    {
+        "activo": false,
+        "idProducto": 1004,
+        "nombre": "nuegados",
+        "productoPrecioList": [
+            {
+                "fechaDesde": "2025-01-01",
+                "fechaHasta": "2030-12-31T06:00:00Z[UTC]",
+                "idProductoPrecio": 1004,
+                "precioSugerido": 1.00
+            }
+        ],
+        "url": "https://www.tipicosmargoth.com/wp-content/uploads/2020/05/NU%C3%89GADO-DE-YUCA-TIPICOS-MARGOTH.jpg"
+    },
+    {
+        "activo": true,
+        "idProducto": 1005,
+        "nombre": "yuca frita",
+        "productoPrecioList": [
+            {
+                "fechaDesde": "2025-01-01",
+                "fechaHasta": "2030-12-31T06:00:00Z[UTC]",
+                "idProductoPrecio": 1005,
+                "precioSugerido": 1.00
+            }
+        ],
+        "url": "https://mojo.generalmills.com/api/public/content/dIC2MOZgzUy11gV3XUty4g_gmi_hi_res_jpeg.jpeg?v=1b8cbe0c&t=16e3ce250f244648bef28c5949fb99ff"
+    },
+    {
+        "activo": true,
+        "idProducto": 1006,
+        "nombre": "chilate",
+        "productoPrecioList": [
+            {
+                "fechaDesde": "2025-01-01",
+                "fechaHasta": "2030-12-31T06:00:00Z[UTC]",
+                "idProductoPrecio": 1006,
+                "precioSugerido": 0.75
+            }
+        ],
+        "url": "https://scontent.fsal2-2.fna.fbcdn.net/v/t1.6435-9/126903013_1324003161281913_2395096843591853983_n.jpg?stp=dst-jpg_s600x600_tt6&_nc_cat=110&ccb=1-7&_nc_sid=833d8c&_nc_ohc=xMvTpJKNmBEQ7kNvwHNLIh3&_nc_oc=AdniETChzLvoW-st65gATZU2-Yyq-CchCP5mBOsOIUNjQBp4awcBpwZ1YCVUnSBpNa0WnwjhWaTRr8yU1ZetPJmf&_nc_zt=23&_nc_ht=scontent.fsal2-2.fna&_nc_gid=U6oH-84yWomciF_IiYbXpw&oh=00_AfGPNqJ5-I-11oAFO749eCb2DU6hLVxmibgyOBQpnWsz7g&oe=683C7064"
+    },
+    {
+        "activo": true,
+        "idProducto": 1007,
+        "nombre": "tamal de maiz",
+        "productoPrecioList": [
+            {
+                "fechaDesde": "2025-01-01",
+                "fechaHasta": "2030-12-31T06:00:00Z[UTC]",
+                "idProductoPrecio": 1007,
+                "precioSugerido": 0.75
+            }
+        ],
+        "url": "https://www.correo.ca/wp-content/uploads/2023/06/Tamales-colombianosshutterstock_2045038238-696x464.jpeg"
+    },
+    {
+        "activo": true,
+        "idProducto": 1008,
+        "nombre": "tamal de elote",
+        "productoPrecioList": [
+            {
+                "fechaDesde": "2025-01-01",
+                "fechaHasta": "2030-12-31T06:00:00Z[UTC]",
+                "idProductoPrecio": 1008,
+                "precioSugerido": 1.50
+            }
+        ],
+        "url": "https://editorialtelevisa.brightspotcdn.com/dims4/default/a8975df/2147483647/strip/true/crop/900x507+0+47/resize/1000x563!/format/webp/quality/90/?url=https%3A%2F%2Fk2-prod-editorial-televisa.s3.us-east-1.amazonaws.com%2Fbrightspot%2Fwp-content%2Fuploads%2F2021%2F07%2Ftamales.jpg"
+    },
+    {
+        "activo": true,
+        "idProducto": 1009,
+        "nombre": "empanadas de platano",
+        "productoPrecioList": [
+            {
+                "fechaDesde": "2025-01-01",
+                "fechaHasta": "2030-12-31T06:00:00Z[UTC]",
+                "idProductoPrecio": 1009,
+                "precioSugerido": 0.50
+            }
+        ],
+        "url": "https://scontent.fsal2-1.fna.fbcdn.net/v/t1.6435-9/66315240_2055458884558069_7533554039422713856_n.jpg?stp=dst-jpg_s600x600_tt6&_nc_cat=100&ccb=1-7&_nc_sid=833d8c&_nc_ohc=ZuqDvh5wpLYQ7kNvwFsjMPq&_nc_oc=AdnzTCmNG56ItSDyHZAQr0M5Y1_x4UkNVx5sRBnG1wt8SMdu1Ur4bFcgizC8ie_lSVbRI-Vg8QcNJjjzp2y468_5&_nc_zt=23&_nc_ht=scontent.fsal2-1.fna&_nc_gid=NNn6M4-lTMTwdRvjwfqdQQ&oh=00_AfFvdF4G0xVrQQWdEIhCe4kQgjiJKClxfih-yBkzG2bEYA&oe=683C6209"
+    },
+    {
+        "activo": true,
+        "idProducto": 1010,
+        "nombre": "riguas",
+        "productoPrecioList": [
+            {
+                "fechaDesde": "2025-01-01",
+                "fechaHasta": "2030-12-31T06:00:00Z[UTC]",
+                "idProductoPrecio": 1010,
+                "precioSugerido": 1.00
+            }
+        ],
+        "url": "https://www.tipicosmargoth.com/wp-content/uploads/2020/05/RIGUAS-TIPICOS-MARGOTH.jpg"
+    },
+    {
+        "activo": true,
+        "idProducto": 1011,
+        "nombre": "casamiento",
+        "productoPrecioList": [
+            {
+                "fechaDesde": "2025-01-01",
+                "fechaHasta": "2030-12-31T06:00:00Z[UTC]",
+                "idProductoPrecio": 1011,
+                "precioSugerido": 0.75
+            }
+        ],
+        "url": "https://www.recetassalvador.com/base/stock/Recipe/casamiento/casamiento_web.jpg.webp"
+    },
+    {
+        "activo": true,
+        "idProducto": 1012,
+        "nombre": "cafe",
+        "productoPrecioList": [
+            {
+                "fechaDesde": "2025-01-01",
+                "fechaHasta": "2030-12-31T06:00:00Z[UTC]",
+                "idProductoPrecio": 1012,
+                "precioSugerido": 0.75
+            }
+        ],
+        "url": "https://static.elmundo.sv/wp-content/uploads/2020/08/Cafe1.jpg"
+    },
+    {
+        "activo": true,
+        "idProducto": 1013,
+        "nombre": "chocolate",
+        "productoPrecioList": [
+            {
+                "fechaDesde": "2025-01-01",
+                "fechaHasta": "2030-12-31T06:00:00Z[UTC]",
+                "idProductoPrecio": 1013,
+                "precioSugerido": 1.00
+            }
+        ],
+        "url": "https://images.squarespace-cdn.com/content/v1/629687d754ac3a7c9d6de4f9/f3b4c260-44be-4a37-b604-3e200f309116/ya_DSC0583.jpg"
+    },
+    {
+        "activo": true,
+        "idProducto": 1014,
+        "nombre": "atol",
+        "productoPrecioList": [
+            {
+                "fechaDesde": "2025-01-01",
+                "fechaHasta": "2030-12-31T06:00:00Z[UTC]",
+                "idProductoPrecio": 1014,
+                "precioSugerido": 0.80
+            }
+        ],
+        "url": "https://cdn-pro.elsalvador.com/wp-content/uploads/2019/01/Atol-de-maiz.jpg"
+    },
+    {
+        "activo": true,
+        "idProducto": 1015,
+        "nombre": "frijoles fritos",
+        "productoPrecioList": [
+            {
+                "fechaDesde": "2025-01-01",
+                "fechaHasta": "2030-12-31T06:00:00Z[UTC]",
+                "idProductoPrecio": 1015,
+                "precioSugerido": 0.60
+            }
+        ],
+        "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRMZpYhPkJ4xwoDi02T9_Ds3DkC3-_BWKr0LA&s"
+    },
+    {
+        "activo": true,
+        "idProducto": 1016,
+        "nombre": "queso fresco",
+        "productoPrecioList": [
+            {
+                "fechaDesde": "2025-01-01",
+                "fechaHasta": "2030-12-31T06:00:00Z[UTC]",
+                "idProductoPrecio": 1016,
+                "precioSugerido": 0.50
+            }
+        ],
+        "url": "https://i.ytimg.com/vi/ElD931s_Vgs/sddefault.jpg"
+    },
+    {
+        "activo": true,
+        "idProducto": 1017,
+        "nombre": "crema",
+        "productoPrecioList": [
+            {
+                "fechaDesde": "2025-01-01",
+                "fechaHasta": "2030-12-31T06:00:00Z[UTC]",
+                "idProductoPrecio": 1017,
+                "precioSugerido": 1.50
+            }
+        ],
+        "url": "https://walmartsv.vtexassets.com/arquivos/ids/274677/Crema-Salud-Bolsa-750Ml-1-14861.jpg?v=638025251119530000"
+    },
+    {
+        "activo": true,
+        "idProducto": 1018,
+        "nombre": "horchata",
+        "productoPrecioList": [
+            {
+                "fechaDesde": "2025-01-01",
+                "fechaHasta": "2030-12-31T06:00:00Z[UTC]",
+                "idProductoPrecio": 1018,
+                "precioSugerido": 0.60
+            }
+        ],
+        "url": "https://i.pinimg.com/736x/84/5c/16/845c16967a40214e0d83fd25f9954fbc.jpg"
+    },
+    {
+        "activo": true,
+        "idProducto": 1019,
+        "nombre": "platanos fritos",
+        "productoPrecioList": [
+            {
+                "fechaDesde": "2025-01-01",
+                "fechaHasta": "2030-12-31T06:00:00Z[UTC]",
+                "idProductoPrecio": 1019,
+                "precioSugerido": 0.25
+            }
+        ],
+        "url": "https://lh4.googleusercontent.com/proxy/tL2W2GwdL5zOstTl8ROvwZSgB4xf9Yi1vU8vpW_ZBeOa67JJIbWgenrLUqH3dwlL_Q_6ZoBjtsFHwb_q96TRUVCTASfIOjNf4_ck6q0x-h7V54hfl452iJDS0NG4PQ"
+    },
+    {
+        "activo": true,
+        "idProducto": 1020,
+        "nombre": "huevos revueltos",
+        "productoPrecioList": [
+            {
+                "fechaDesde": "2025-01-01",
+                "fechaHasta": "2030-12-31T06:00:00Z[UTC]",
+                "idProductoPrecio": 1020,
+                "precioSugerido": 0.60
+            }
+        ],
+        "url": "https://www.divinacocina.es/wp-content/uploads/2016/01/huevos-revueltos-para-desayunos-sarten.jpg"
+    }
+]

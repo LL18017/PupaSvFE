@@ -38,10 +38,9 @@ pipeline {
             fingerprintArtifacts: true
             )
             sh '''
-  mkdir -p ${PROJECT_ENDTOEND}/target
-  cp -f PupaSv/target/*.war ${PROJECT_ENDTOEND}/target/
-'''
-
+              mkdir -p ${PROJECT_ENDTOEND}/target
+              cp -f PupaSv/target/*.war ${PROJECT_ENDTOEND}/target/
+              '''
         }
     }
 
@@ -53,7 +52,7 @@ pipeline {
       }
     }
 
-    stage('Ejecutar pruebas') {
+    stage('Ejecutar pruebas de unidad') {
       steps {
         dir("${PROJECT_ROOT}") {
           sh 'npm run test'
@@ -62,33 +61,33 @@ pipeline {
     }
 
     stage('Eliminar imagen del frontend si existe') {
-  steps {
-    sh '''
-      # Verificar si existe la imagen
-      IMAGE_ID=$(docker images -q $FRONTEND_TEST_IMAGE)
+    steps {
+      sh '''
+        # Verificar si existe la imagen
+        IMAGE_ID=$(docker images -q $FRONTEND_TEST_IMAGE)
 
-      if [ -n "$IMAGE_ID" ]; then
-          echo "La imagen $FRONTEND_TEST_IMAGE existe con ID $IMAGE_ID. Verificando contenedores en uso..."
+        if [ -n "$IMAGE_ID" ]; then
+            echo "La imagen $FRONTEND_TEST_IMAGE existe con ID $IMAGE_ID. Verificando contenedores en uso"
 
-          # Buscar contenedores en ejecución que usan esta imagen
-          CONTAINERS_USING_IMAGE=$(docker ps -q --filter ancestor=$IMAGE_ID)
+            # Buscar contenedores en ejecución que usan esta imagen
+            CONTAINERS_USING_IMAGE=$(docker ps -q --filter ancestor=$IMAGE_ID)
 
-          if [ -n "$CONTAINERS_USING_IMAGE" ]; then
-              echo "Hay contenedores usando la imagen. Deteniéndolos..."
-              docker stop $CONTAINERS_USING_IMAGE
+            if [ -n "$CONTAINERS_USING_IMAGE" ]; then
+                echo "Hay contenedores usando la imagen. Deteniéndolos..."
+                docker stop $CONTAINERS_USING_IMAGE
 
-              echo "Eliminando contenedores..."
-              docker rm $CONTAINERS_USING_IMAGE
-          fi
+                echo "Eliminando contenedores..."
+                docker rm $CONTAINERS_USING_IMAGE
+            fi
 
-          echo "Eliminando la imagen $FRONTEND_TEST_IMAGE..."
-          docker rmi -f $IMAGE_ID
-      else
-          echo "La imagen $FRONTEND_TEST_IMAGE no existe. Nada que eliminar."
-      fi
-    '''
-  }
-}
+            echo "Eliminando la imagen $FRONTEND_TEST_IMAGE..."
+            docker rmi -f $IMAGE_ID
+        else
+            echo "La imagen $FRONTEND_TEST_IMAGE no existe. Nada que eliminar."
+        fi
+      '''
+    }
+} 
     stage('Crear imagen para test end-to-end docker') {
       steps {
         dir("${PROJECT_ROOT}") {
@@ -97,15 +96,15 @@ pipeline {
       }
     }
     
-     stage('ejecutar pruebas end-to-end') {
-        steps {
-                echo 'Ejecutando pruebas unitarias con Maven'
+    stage('ejecutar pruebas end-to-end') {
+      steps {
+         echo 'Ejecutando pruebas unitarias con Maven'
                 sh """
                     cd ${PROJECT_ENDTOEND}
                     mvn test
                 """
-            }
-  }
+      }
+    }
   }
 
   post {
@@ -114,7 +113,7 @@ pipeline {
 
       sh '''
         if docker images --format '{{.Repository}}:{{.Tag}}' | grep -q "^$FRONTEND_PROD_IMAGE:"; then
-            echo "La imagen $FRONTEND_PROD_IMAGE existe. Eliminando..."${PROJECT_ENDTOEND}
+            echo "La imagen $FRONTEND_PROD_IMAGE existe. Eliminando..."
             docker rmi -f $(docker images -q $FRONTEND_PROD_IMAGE)
         else
             echo "La imagen $FRONTEND_PROD_IMAGE no existe. Nada que eliminar."
@@ -134,6 +133,8 @@ pipeline {
 
         // Ejecutar contenedor
         sh 'docker run -d --name $FRONTEND_CONTAINER --network tpi_pupa_network -p 3000:80 $FRONTEND_PROD_IMAGE'
+        sh 'docker run db16'
+        sh 'docker run backend-pupa-container'
       }
     }
   }
