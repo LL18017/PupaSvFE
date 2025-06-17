@@ -133,8 +133,8 @@ pipeline {
 
         // Ejecutar contenedor
         sh 'docker run -d --name $FRONTEND_CONTAINER --network tpi_pupa_network -p 3000:80 $FRONTEND_PROD_IMAGE'
-        sh 'docker run db16'
-        sh 'docker run backend-pupa-container'
+        sh 'docker start db16'
+        sh 'docker start backend-pupa-container'
       }
     }
   }
