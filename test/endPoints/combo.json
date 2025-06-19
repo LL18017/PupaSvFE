@@ -1,0 +1,300 @@
+[
+    {
+      "activo": true,
+      "comboDetalleList": [
+        {
+          "activo": true,
+          "cantidad": 10,
+          "comboDetallePK": {
+            "idCombo": 1001,
+            "idProducto": 1003
+          }
+        },
+        {
+          "activo": true,
+          "cantidad": 3,
+          "comboDetallePK": {
+            "idCombo": 1001,
+            "idProducto": 1001
+          }
+        }
+      ],
+      "descripcionPublica": "10 pupusas de cualquier especialidad y 3 cocas ",
+      "idCombo": 1001,
+      "nombre": "superCombo",
+      "url": "https://pollosreal.com/wp-content/uploads/2023/08/Pupusas-1024x1024.webp"
+    },
+    {
+      "activo": true,
+      "comboDetalleList": [
+        {
+          "activo": true,
+          "cantidad": 20,
+          "comboDetallePK": {
+            "idCombo": 1002,
+            "idProducto": 1003
+          }
+        },
+        {
+          "activo": true,
+          "cantidad": 5,
+          "comboDetallePK": {
+            "idCombo": 1002,
+            "idProducto": 1002
+          }
+        }
+      ],
+      "descripcionPublica": "20 pupusas de cualquier especialidad y pepsis",
+      "idCombo": 1002,
+      "nombre": "megaCombo",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Pupusas_El_Salvador_Centro_America.JPG/330px-Pupusas_El_Salvador_Centro_America.JPG"
+    },
+    {
+      "activo": true,
+      "comboDetalleList": [
+        {
+          "activo": true,
+          "cantidad": 40,
+          "comboDetallePK": {
+            "idCombo": 1003,
+            "idProducto": 1003
+          }
+        },
+        {
+          "activo": true,
+          "cantidad": 5,
+          "comboDetallePK": {
+            "idCombo": 1003,
+            "idProducto": 1002
+          }
+        }
+      ],
+      "descripcionPublica": "40 pupusas de cualquier especialidda + 3 pepsis",
+      "idCombo": 1003,
+      "nombre": "ultraCombo",
+      "url": "https://recetassalvadorenas.com/wp-content/uploads/2014/03/rosalba-e1504404527338.jpg"
+    },
+    {
+      "activo": true,
+      "comboDetalleList": [
+        {
+          "activo": true,
+          "cantidad": 1,
+          "comboDetallePK": {
+            "idCombo": 1004,
+            "idProducto": 1020
+          }
+        },
+        {
+          "activo": true,
+          "cantidad": 5,
+          "comboDetallePK": {
+            "idCombo": 1004,
+            "idProducto": 1011
+          }
+        },
+        {
+          "activo": true,
+          "cantidad": 5,
+          "comboDetallePK": {
+            "idCombo": 1004,
+            "idProducto": 1019
+          }
+        },
+        {
+          "activo": true,
+          "cantidad": 5,
+          "comboDetallePK": {
+            "idCombo": 1004,
+            "idProducto": 1012
+          }
+        }
+      ],
+      "descripcionPublica": "porcion huevos y casamiento junto platanos y un cafe",
+      "idCombo": 1004,
+      "nombre": "desayuno tradicional",
+      "url": "https://cdn.prod.website-files.com/65eaa6f14ade57080837bd43/65ebe5693083c7cc4feb71bb_Desayuno-Armenia.jpg"
+    },
+    {
+      "activo": true,
+      "comboDetalleList": [
+        {
+          "activo": true,
+          "cantidad": 1,
+          "comboDetallePK": {
+            "idCombo": 1005,
+            "idProducto": 1011
+          }
+        },
+        {
+          "activo": true,
+          "cantidad": 1,
+          "comboDetallePK": {
+            "idCombo": 1005,
+            "idProducto": 1019
+          }
+        },
+        {
+          "activo": true,
+          "cantidad": 1,
+          "comboDetallePK": {
+            "idCombo": 1005,
+            "idProducto": 1016
+          }
+        },
+        {
+          "activo": true,
+          "cantidad": 1,
+          "comboDetallePK": {
+            "idCombo": 1005,
+            "idProducto": 1012
+          }
+        }
+      ],
+      "descripcionPublica": "porcion de casamiento, platanos y queso freso y un cafe",
+      "idCombo": 1005,
+      "nombre": "Amanecer Criollo",
+      "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTrwHUqLTQ0_q0Mw_fdh4RBWKQqrrXehvt_hw&s"
+    },
+    {
+      "activo": true,
+      "comboDetalleList": [
+        {
+          "activo": true,
+          "cantidad": 3,
+          "comboDetallePK": {
+            "idCombo": 1006,
+            "idProducto": 1012
+          }
+        }
+      ],
+      "descripcionPublica": "3 cafes",
+      "idCombo": 1006,
+      "nombre": "amantes de la cafeina",
+      "url": "https://miro.medium.com/v2/resize:fit:540/1*bz6Gj2NAp3zfJoV6yBX5lw.jpeg"
+    },
+    {
+      "activo": true,
+      "comboDetalleList": [
+        {
+          "activo": true,
+          "cantidad": 5,
+          "comboDetallePK": {
+            "idCombo": 1007,
+            "idProducto": 1009
+          }
+        },
+        {
+          "activo": true,
+          "cantidad": 1,
+          "comboDetallePK": {
+            "idCombo": 1007,
+            "idProducto": 1004
+          }
+        },
+        {
+          "activo": true,
+          "cantidad": 1,
+          "comboDetallePK": {
+            "idCombo": 1007,
+            "idProducto": 1014
+          }
+        }
+      ],
+      "descripcionPublica": "porcion de nuegados y atol",
+      "idCombo": 1007,
+      "nombre": "tarde tradicional",
+      "url": "https://i.pinimg.com/236x/52/64/03/5264036e73e50052290096016375dc68.jpg"
+    },
+    {
+      "activo": true,
+      "comboDetalleList": [
+        {
+          "activo": true,
+          "cantidad": 5,
+          "comboDetallePK": {
+            "idCombo": 1008,
+            "idProducto": 1009
+          }
+        },
+        {
+          "activo": true,
+          "cantidad": 1,
+          "comboDetallePK": {
+            "idCombo": 1008,
+            "idProducto": 1013
+          }
+        }
+      ],
+      "descripcionPublica": "5 empanadas de platano junto a un chocolate",
+      "idCombo": 1008,
+      "nombre": "tarde de dulce",
+      "url": "https://www.tipicosmargoth.com/wp-content/uploads/2020/05/EMPANADA-DE-FRIJOL-TIPICOS-MARGOTH.jpg"
+    },
+    {
+      "activo": true,
+      "comboDetalleList": [
+        {
+          "activo": true,
+          "cantidad": 2,
+          "comboDetallePK": {
+            "idCombo": 1009,
+            "idProducto": 1008
+          }
+        },
+        {
+          "activo": true,
+          "cantidad": 1,
+          "comboDetallePK": {
+            "idCombo": 1009,
+            "idProducto": 1017
+          }
+        },
+        {
+          "activo": true,
+          "cantidad": 1,
+          "comboDetallePK": {
+            "idCombo": 1009,
+            "idProducto": 1013
+          }
+        }
+      ],
+      "descripcionPublica": "2 tamales de elote, crema junto con un chocolate",
+      "idCombo": 1009,
+      "nombre": "tradiCombo",
+      "url": "https://comedera.com/wp-content/uploads/sites/9/2024/06/Tamales-de-Elote.jpg"
+    },
+    {
+      "activo": true,
+      "comboDetalleList": [
+        {
+          "activo": true,
+          "cantidad": 2,
+          "comboDetallePK": {
+            "idCombo": 1010,
+            "idProducto": 1007
+          }
+        },
+        {
+          "activo": true,
+          "cantidad": 1,
+          "comboDetallePK": {
+            "idCombo": 1010,
+            "idProducto": 1012
+          }
+        }
+      ],
+      "descripcionPublica": "2 tamales de maiz  y un cafe",
+      "idCombo": 1010,
+      "nombre": "sabor guanaco",
+      "url": "https://cocinaalchile.com/wp-content/uploads/2019/11/2.jpg"
+    },
+    {
+      "activo": true,
+      "comboDetalleList": [],
+      "descripcionPublica": "2 tamales de maiz  y un cafe",
+      "idCombo": 1011,
+      "nombre": "sabor guanaco2fdz",
+      "url": "https://cocinaalchile.com/wp-content/uploads/2019/11/2.jpg"
+    }
+  ]

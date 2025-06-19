@@ -7,8 +7,6 @@ describe("Carga de productos", function () {
     assert.ok(res.ok, "No se pudo acceder al recurso");
 
     const productos = await res.json();
-    console.log("Productos:", productos);
-
     assert.ok(Array.isArray(productos), "La respuesta no es un array");
     assert.ok(productos.length > 0, "La lista está vacía");
   });

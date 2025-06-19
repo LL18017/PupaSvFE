@@ -1,0 +1,17 @@
+[
+    {
+      "activo": true,
+      "idTipoProducto": 1001,
+      "nombre": "bebida"
+    },
+    {
+      "activo": true,
+      "idTipoProducto": 1002,
+      "nombre": "comida"
+    },
+    {
+      "activo": true,
+      "idTipoProducto": 1003,
+      "nombre": "tipicos"
+    }
+  ]

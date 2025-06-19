@@ -1,0 +1,38 @@
+[
+    {
+      "anulada": true,
+      "fecha": "2025-03-03T06:00:00Z[UTC]",
+      "idOrden": 12345,
+      "sucursal": "Zarsa"
+    },
+    {
+      "anulada": true,
+      "fecha": "2025-03-04T06:00:00Z[UTC]",
+      "idOrden": 12346,
+      "sucursal": "S-Ana"
+    },
+    {
+      "anulada": true,
+      "fecha": "2025-03-05T06:00:00Z[UTC]",
+      "idOrden": 12347,
+      "sucursal": "SS"
+    },
+    {
+      "anulada": true,
+      "fecha": "2025-03-05T06:00:00Z[UTC]",
+      "idOrden": 12348,
+      "sucursal": "SS"
+    },
+    {
+      "anulada": true,
+      "fecha": "2025-03-05T06:00:00Z[UTC]",
+      "idOrden": 12349,
+      "sucursal": "SS"
+    },
+    {
+      "anulada": true,
+      "fecha": "2025-03-05T06:00:00Z[UTC]",
+      "idOrden": 123451,
+      "sucursal": "SS"
+    }
+  ]
