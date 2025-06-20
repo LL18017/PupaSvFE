@@ -9,9 +9,6 @@ pipeline {
   environment {
     PROJECT_ROOT = 'PupaSvFE'
     PROJECT_ENDTOEND = 'PupaSvETE'
-    FRONTEND_TEST_IMAGE = 'fronted-test'
-    FRONTEND_PROD_IMAGE = 'fronted-pupa'
-    FRONTEND_CONTAINER = 'frontend-pupa-container'
   }
 
   stages {
@@ -59,39 +56,37 @@ pipeline {
         }
       }
     }
+    
+   stage('Ejecutar pruebas de integracion') {
+  steps {
+    dir("${PROJECT_ROOT}") {
+      sh '''
+        npm install -g browser-sync
+        #browser-sync en segundo plano
+        nohup browser-sync start --server ./test -f "**/*" --port 3050 --no-open > bs.log 2>&1 &
+
+        npm run testIT
+      '''
+    }
+  }
+}
+
 
     stage('Eliminar imagen del frontend si existe') {
     steps {
-      sh '''
-        # Verificar si existe la imagen
-        IMAGE_ID=$(docker images -q $FRONTEND_TEST_IMAGE)
-
-        if [ -n "$IMAGE_ID" ]; then
-            echo "La imagen $FRONTEND_TEST_IMAGE existe con ID $IMAGE_ID. Verificando contenedores en uso"
-
-            # Buscar contenedores en ejecución que usan esta imagen
-            CONTAINERS_USING_IMAGE=$(docker ps -q --filter ancestor=$IMAGE_ID)
-
-            if [ -n "$CONTAINERS_USING_IMAGE" ]; then
-                echo "Hay contenedores usando la imagen. Deteniéndolos..."
-                docker stop $CONTAINERS_USING_IMAGE
-
-                echo "Eliminando contenedores..."
-                docker rm $CONTAINERS_USING_IMAGE
-            fi
-
-            echo "Eliminando la imagen $FRONTEND_TEST_IMAGE..."
-            docker rmi -f $IMAGE_ID
-        else
+      sh """
+          if [ "\$(docker images -q ${env.FRONTEND_TEST_IMAGE})" ]; then
+             docker rmi -f ${env.FRONTEND_TEST_IMAGE}
+             else
             echo "La imagen $FRONTEND_TEST_IMAGE no existe. Nada que eliminar."
-        fi
-      '''
+            fi
+        """
     }
 } 
     stage('Crear imagen para test end-to-end docker') {
       steps {
         dir("${PROJECT_ROOT}") {
-          sh 'docker build -t $FRONTEND_TEST_IMAGE .'
+          sh """docker build -t ${env.FRONTEND_TEST_IMAGE} ."""
         }
       }
     }
@@ -109,32 +104,42 @@ pipeline {
 
   post {
     success {
-      archiveArtifacts artifacts: 'PupaSvFE/**', fingerprint: true
+        
+            script {
+            def hora = new Date().format('yyyy-MM-dd HH:mm:ss', TimeZone.getTimeZone('America/El_Salvador'))
+            writeFile file: 'PupaSvFE/info.txt', text: "Build: ${currentBuild.number}\nCreado: ${hora}\n"
+             archiveArtifacts artifacts: 'PupaSvFE/src/**, PupaSvFE/info.txt ,PupaSvETE/target/**.mp4', fingerprint: true
+             echo "Artefacto generado exitosamente"
+            echo "Pipeline frontend número: ${currentBuild.number}"
+            echo "Fecha de creación: ${hora}"
+        }
+   
 
-      sh '''
-        if docker images --format '{{.Repository}}:{{.Tag}}' | grep -q "^$FRONTEND_PROD_IMAGE:"; then
-            echo "La imagen $FRONTEND_PROD_IMAGE existe. Eliminando..."
-            docker rmi -f $(docker images -q $FRONTEND_PROD_IMAGE)
+       sh """
+        if [ "\$(docker images -q ${env.FRONTEND_PROD_IMAGE})" ]; then
+        docker rmi -f ${env.FRONTEND_PROD_IMAGE}
         else
-            echo "La imagen $FRONTEND_PROD_IMAGE no existe. Nada que eliminar."
+            echo "La imagen ${env.FRONTEND_PROD_IMAGE} no existe. Nada que eliminar."
         fi
-      '''
-
+        """
+        
+        
       dir("${PROJECT_ROOT}") {
         // Construir imagen para producción
-        sh 'docker build -t $FRONTEND_PROD_IMAGE .'
+        sh """ docker build -t ${env.FRONTEND_PROD_IMAGE} ."""
 
         // Eliminar contenedor anterior si existe
-        sh '''
-          if [ "$(docker ps -aq -f name=$FRONTEND_CONTAINER)" ]; then
-            docker rm -f $FRONTEND_CONTAINER
+        sh """
+          if [ "\$(docker ps -aq -f name=${env.FRONTEND_CONTAINER})" ]; then
+            docker stop ${env.FRONTEND_CONTAINER}
+            docker rm -f ${env.FRONTEND_CONTAINER}
           fi
-        '''
+        """
 
         // Ejecutar contenedor
-        sh 'docker run -d --name $FRONTEND_CONTAINER --network tpi_pupa_network -p 3000:80 $FRONTEND_PROD_IMAGE'
+        sh """docker run -d --name ${env.FRONTEND_CONTAINER} --network tpi_pupa_network -p 3000:80 ${env.FRONTEND_PROD_IMAGE}"""
         sh 'docker start db16'
-        sh 'docker start backend-pupa-container'
+        sh """docker start ${env.BACKEND_CONTAINER}"""
       }
     }
   }
