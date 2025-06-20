@@ -21,4 +21,4 @@ if [ "$response" -eq 201 ]; then
 else
     echo "❌ Jenkins no respondió correctamente. Código HTTP: $response"
     exit 1
-fi/var/jenkins_home/
+fi
